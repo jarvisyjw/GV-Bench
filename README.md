@@ -12,6 +12,18 @@ The
 
 ## Usage
 
+### Installation
+- Install `conda`
+  
+```bash
+git clone
+cd GV-BENCH/
+conda create --name=gvbench python=3.8
+cd third_party/Hierarchical-Localization/
+python -m pip install -e .
+```
+
+
 ### Dataset
 - Oxford RobotCar
 - RobotCar Seasons
@@ -19,4 +31,6 @@ The
 ### Feature Extraction & Matching
 
 ### Evaluation
+
+
 
