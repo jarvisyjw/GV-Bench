@@ -23,12 +23,30 @@ cd third_party/Hierarchical-Localization/
 python -m pip install -e .
 ```
 
+## TODO
 
 ### Dataset
 - Oxford RobotCar
+  - [x] Crop
+  - [ ] Feature Extraction & Matching
+  - [ ] Viewpoint Quantification
+    - [ ] Find out the Maximum Viewpoint Variation
+      - [ ] 5m
+      - [ ] 10m
 - RobotCar Seasons
+- Mapillary Street Level Dataset
 
 ### Feature Extraction & Matching
+#### Extraction
+- Robotcar RCV
+  - [ ] SIFT
+  - [ ] ORB
+  - [ ] SuperPoint
+
+### Dataset Processing
+#### Oxford RobotCar
+- [x] Image Crop (To eliminate the effect caused by the vehicle hood.)
+- [ ] Viewpoint Quantification of two images 
 
 ### Evaluation
 
