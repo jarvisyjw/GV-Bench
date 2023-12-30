@@ -7,6 +7,7 @@ import os
 from hloc import extract_features, match_features, visualization
 import multiprocessing, threading
 import h5py
+from ..utils.io import gt_loader, load_gt
 
 from .. import logger
 
@@ -82,6 +83,25 @@ def crop_images(image_dir: str, export_dir: str):
             if not cv2.imwrite(str(export_dir / image_path.name), image):
                   raise Exception("Could not write image {}".format(export_dir / image_path.name))
       logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
+      
+
+def select_crop_images(image_list: str, image_dir: str, export_dir: str, num_process: int):
+      logger.info(f'Selecting images from {image_dir}, crop and export to {export_dir}')
+      image_dir = Path(image_dir)
+      export_dir = Path(export_dir)
+      if not export_dir.exists():
+            export_dir.mkdir(parents=True, exist_ok=True)      
+      
+      # image_list = [image_path.name for image_path in Path(image_dir).glob('**/*.jpg')]
+      image_list = [image_list[i::num_process] for i in range(num_process)]
+      processes = []
+      for i in range(num_process):
+            p = multiprocessing.Process(target=crop_images_list, args=(image_dir, export_dir, image_list[i]))
+            p.start()
+            processes.append(p)
+      for p in processes:
+            p.join()
+      logger.info(f'Selected images from {image_dir} to {export_dir}. DONE!')
 
 
 def parser():
@@ -94,12 +114,23 @@ def parser():
 
 if __name__ == '__main__':
       # args = parser()
-      root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
-      feature = 'superpoint'
-      image_dir = Path(root_dir, 'Autumn_val/crop/')
-      export_dir = Path(root_dir, 'Autumn_val/features/')
-      # image_dir = root_dir + 'Suncloud_val/stereo/centre/'
-      # export_dir = root_dir + 'Suncloud_val/crop/'
-      # crop_images_multiprocess(image_dir, export_dir, 10)
-      # extractor_multiprocess(feature, image_dir, export_dir, 10)
-      extractor(feature, image_dir, export_dir)
+      # root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
+      features = ['superpoint', 'sift', 'disk']
+      datasets = ['Autumn_mini_val', 'Night_mini_val', 'Suncloud_mini_val']
+      root_dir = 'dataset/robotcar/'
+      for feature in features:
+            for dataset in datasets:
+                  image_dir = Path(root_dir, dataset)
+                  export_dir = Path(root_dir, 'features/')
+                  extractor(feature, image_dir, export_dir)
+      # feature = 'superpoint'
+      # image_dir = Path(root_dir, 'Autumn_val/crop/')
+      # export_dir = Path(root_dir, 'Autumn_val/features/')
+      # # image_dir = root_dir + 'Suncloud_val/stereo/centre/'
+      # # export_dir = root_dir + 'Suncloud_val/crop/'
+      # # crop_images_multiprocess(image_dir, export_dir, 10)
+      # # extractor_multiprocess(feature, image_dir, export_dir, 10)
+      # extractor(feature, image_dir, export_dir)
+      # gt = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
+      # query, reference, label = load_gt(gt)
+      # select_crop_images(reference, 'dataset/robotcar/Suncloud_val/stereo/centre/', 'dataset/robotcar/Suncloud_mini_val', 10)
