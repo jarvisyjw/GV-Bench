@@ -4,10 +4,10 @@ from tqdm import tqdm
 import argparse
 import os
 
-from hloc import extract_features, match_features, visualization
+from hloc import extract_features, match_features, visualization, match_features
 import multiprocessing, threading
 import h5py
-from ..utils.io import gt_loader, load_gt
+from ..utils.io import gt_loader, load_gt, parse_pairs
 
 from .. import logger
 
@@ -42,6 +42,16 @@ def extractor(feature: str, image_dir: Path, export_dir: Path):
       
       return feature_path
 
+
+def match(matcher: str, pairs: Path, feature_path_q: Path, feature_path_r: Path, export_dir: Path):
+      pairs_loader = parse_pairs(pairs)
+      pairs = [(q, r) for q, r, _ in pairs_loader]
+      conf = match_features.confs[matcher]
+      logger.info(f'Matching {feature_path_q.name} to {feature_path_r.name} using {matcher}')
+      matches = Path(
+                export_dir, f'{conf["output"]}.h5')
+      match_features.match_from_pairs(conf, pairs, matches, feature_path_q, feature_path_r)
+      
 
 def crop_images_list(image_dir: Path, export_dir: Path, image_list: list):
       for image_name in tqdm(image_list, total = len(image_list)):
@@ -113,16 +123,34 @@ def parser():
 
 
 if __name__ == '__main__':
+      matcher = 'superpoint+lightglue'
+      pairs = 'dataset/gt/robotcar_qAutumn_dbSuncloud.txt'
+      feature_path_q = 'dataset/features/Autumn_mini_val/superpoint.h5'
+      feature_path_r = 'dataset/features/Suncloud_mini_val/superpoint.h5'
+      export_dir = 'dataset/matches/qAutumn_dbSuncloud/'
+      match(matcher, pairs, Path(feature_path_q), Path(feature_path_r), Path(export_dir))
+      # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
       # args = parser()
       # root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
-      features = ['superpoint', 'sift', 'disk']
-      datasets = ['Autumn_mini_val', 'Night_mini_val', 'Suncloud_mini_val']
-      root_dir = 'dataset/robotcar/'
-      for feature in features:
-            for dataset in datasets:
-                  image_dir = Path(root_dir, dataset)
-                  export_dir = Path(root_dir, 'features/')
-                  extractor(feature, image_dir, export_dir)
+      # features = ['superpoint', 'sift', 'disk']
+      # feature = 'sift'
+      # image_dir = Path('dataset/')
+      # export_dir = Path('features')
+      # extractor(feature, image_dir, export_dir)
+      
+      # datasets = ['Autumn_mini_val', 'Night_mini_val', 'Suncloud_mini_val']
+      # root_dir = 'dataset/'
+      # for feature in features:
+      #       for dataset in datasets:
+      #             image_dir = Path(root_dir, dataset)
+      #             export_dir = Path(root_dir, 'features', dataset)
+      #             extractor(feature, image_dir, export_dir)
+
+      # pairs = 'dataset/gt/robotcar_qAutumn_dbSuncloud.txt'
+
+      # pairs_loader = parse_pairs(pairs)
+      # pairs = [(q, r) for q, r, _ in pairs_loader]
+      # print(pairs)
       # feature = 'superpoint'
       # image_dir = Path(root_dir, 'Autumn_val/crop/')
       # export_dir = Path(root_dir, 'Autumn_val/features/')
@@ -131,6 +159,6 @@ if __name__ == '__main__':
       # # crop_images_multiprocess(image_dir, export_dir, 10)
       # # extractor_multiprocess(feature, image_dir, export_dir, 10)
       # extractor(feature, image_dir, export_dir)
-      # gt = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
+      # gt = 'dataset/gt/robotcar_qAutumn_dbSuncloud.txt'
       # query, reference, label = load_gt(gt)
-      # select_crop_images(reference, 'dataset/robotcar/Suncloud_val/stereo/centre/', 'dataset/robotcar/Suncloud_mini_val', 10)
+      # select_crop_images(query, 'dataset/Autumn_val/stereo/centre/', 'dataset/Autumn_mini_val', 80)
