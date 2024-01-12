@@ -3,6 +3,7 @@ from pathlib import Path
 from tqdm import tqdm
 import argparse
 import os
+import pandas as pd
 
 from hloc import extract_features, match_features, visualization, match_features
 import multiprocessing, threading
@@ -112,6 +113,54 @@ def select_crop_images(image_list: str, image_dir: str, export_dir: str, num_pro
       for p in processes:
             p.join()
       logger.info(f'Selected images from {image_dir} to {export_dir}. DONE!')
+
+
+def find_closest(lst, x):
+    """
+    在有序列表 lst 中找到与给定值 x 大小最接近的元素。
+    """
+    n = len(lst)
+    if x <= lst[0]:
+        return lst[0]
+    elif x >= lst[n-1]:
+        return lst[n-1]
+    else:
+        # 二分查找
+        low, high = 0, n-1
+        while low <= high:
+            mid = (low + high) // 2
+            if lst[mid] == x:
+                return lst[mid]
+            elif lst[mid] < x:
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        # 最后返回距离 x 最近的元素
+        if lst[high] - x < x - lst[low]:
+            return lst[high]
+        else:
+            return lst[low]
+
+
+# def cal_two_frame_dis_yaw(query_dir, ref_dir, query_t, ref_t):
+#     query_ins_fname = Path(query_dir, "gps/ins.csv")
+#     query_df = pd.read_csv(query_ins_fname)
+#     query_df_timestamps = query_df["timestamp"].tolist()
+#     ref_ins_fname = Path(ref_dir, "gps/ins.csv")
+#     ref_df = pd.read_csv(ref_ins_fname)
+#     ref_df_timestamps = ref_df["timestamp"].tolist()
+
+#     closest_q_mini_t = find_closest(query_df_timestamps, query_t)
+#     q_north, q_east, q_yaw = query_df[query_df["timestamp"]==closest_q_mini_t]["northing"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["easting"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["yaw"].item()
+#     # print(q_north, q_east)
+#     closest_ref_mini_t = find_closest(ref_df_timestamps, ref_t)
+#     ref_north, ref_east, ref_yaw = ref_df[ref_df["timestamp"]==closest_ref_mini_t]["northing"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["easting"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["yaw"].item()
+#     dis = calculate_distance(q_north, q_east, ref_north, ref_east)
+#     view = calculate_view(q_yaw, ref_yaw)
+#     dis = calculate_distance(q_north, q_east, ref_north, ref_east)
+#     print("Distance:", dis)
+#     print("View:", view)
 
 
 def parser():

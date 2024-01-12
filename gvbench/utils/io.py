@@ -29,6 +29,14 @@ def parse_pairs(gt: str):
             line = line.split(', ')
             query, reference, label = line
             yield query, reference, label
+
+
+def write_pairs(file: str, pairs: list):
+    logger.info(f'Writing pairs to {file}')
+    f = open(file, 'w')
+    for pair in pairs:
+        f.write(f'{pair[0]}, {pair[1]}, {pair[2]}\n')
+    logger.info(f'Wrote pairs to {file}. DONE!')
             
 
 def gt_loader(gt: str):
@@ -42,3 +50,4 @@ def gt_loader(gt: str):
             line = line.split(', ')
             query, reference, label = line
             yield set(query, reference, label)
+            
