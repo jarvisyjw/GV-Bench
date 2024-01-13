@@ -31,24 +31,35 @@ python -m pip install -e .
   - [ ] Feature Extraction & Matching
   - [ ] Viewpoint Quantification
     - [ ] Find out the Maximum Viewpoint Variation
-      - [ ] 5m
-      - [ ] 10m
+      - [ ] Max view:
+      - [ ] Max distance:
+      - [ ] Max view & distance
+    - [x] Split different Range
+      - [x] 0.25m, $2^o$
+      - [x] 0.5m, $5^o$
+      - [x] 5m, $10^o$
+      - [x] 25m, $30^o$ 
 - RobotCar Seasons
 - Mapillary Street Level Dataset
 
 ### Feature Extraction & Matching
-#### Extraction
-- Robotcar RCV
-  - [ ] SIFT
-  - [ ] ORB
-  - [ ] SuperPoint
+#### Extraction & Matching
+- Robotcar GV
+  - [ ] SIFT -> NN, LightGlue
+    - [ ] Extraction
+    - [ ] Matching
+  - [ ] ORB -> NN, LightGlue
+  - [ ] SuperPoint -> NN, LightGlue
+  - [ ] LoFTR
+  - [ ] Doppelgangers
+  - [ ] GMS/COTR/Huang Xinghong's Method
 
 ### Dataset Processing
 #### Oxford RobotCar
-- [x] Image Crop (To eliminate the effect caused by the vehicle hood.)
-- [ ] Viewpoint Quantification of two images
-  - [ ] Post-processing the existing lists
-    - [ ] 
+- [x] Image Crop (To eliminate the effect caused by the vehicle hood.) `in each {dataset name}_mini_val` folder
+- [x] Viewpoint Quantification of two images
+  - [x] Post-processing the existing lists
+    - [x] dist_{0:4}
 
 ### Evaluation
 

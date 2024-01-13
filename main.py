@@ -9,7 +9,7 @@ import cv2
 from hloc import extract_features, match_features, visualization
 
 from lcvbench import logger
-from lcvbench.utils import crop
+from lcvbench.utils import io
 
 
 def extractor(feature: str, image_dir: str, export_dir: str):
@@ -33,7 +33,7 @@ def crop_images(image_dir: str, export_dir: str):
             export_dir.mkdir(parents=True, exist_ok=True)
       for image_path in tqdm(image_dir.glob('**/*.jpg'), total = len(list(image_dir.glob('**/*.jpg')))):
             # logger.debug(f'Cropping {image_path}')
-            image = crop.crop_image(str(image_path))
+            image = io.crop_image(str(image_path))
             if not cv2.imwrite(str(export_dir / image_path.name), image):
                   raise Exception("Could not write image {}".format(export_dir / image_path.name))
       logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
