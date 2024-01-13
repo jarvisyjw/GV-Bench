@@ -485,7 +485,7 @@ def write_dists(dist_list, output_dir):
     
 
 if __name__ == '__main__':
-    dist_1, _ = split_dataset("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 20)
+    dist_1, _ = split_dataset("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 40)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
     write_dists(dist_1, "dataset/robotcar/gt")
     # import pdb; pdb.set_trace()

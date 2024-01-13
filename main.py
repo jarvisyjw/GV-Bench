@@ -8,8 +8,8 @@ import cv2
 
 from hloc import extract_features, match_features, visualization
 
-from lcvbench import logger
-from lcvbench.utils import crop
+from gvbench import logger
+from gvbench.utils import crop
 
 
 def extractor(feature: str, image_dir: str, export_dir: str):
