@@ -8,9 +8,8 @@ import pandas as pd
 from hloc import extract_features, match_features, visualization, match_features
 import multiprocessing, threading
 import h5py
-from ..utils.io import gt_loader, load_gt, parse_pairs
-
-from .. import logger
+from .utils import gt_loader, load_gt, parse_pairs
+from . import logger
 
 
 def merge_h5(feature_paths: list, export_path: str):
@@ -44,10 +43,12 @@ def extractor(feature: str, image_dir: Path, export_dir: Path):
       return feature_path
 
 
-def match(matcher: str, pairs: Path, feature_path_q: Path, feature_path_r: Path, export_dir: Path):
+def match(export_dir: Path, matcher: str, pairs: Path, feature_path_q: Path, feature_path_r = None):
       pairs_loader = parse_pairs(pairs)
       pairs = [(q, r) for q, r, _ in pairs_loader]
       conf = match_features.confs[matcher]
+      if feature_path_r is None:
+            feature_path_r = feature_path_q
       logger.info(f'Matching {feature_path_q.name} to {feature_path_r.name} using {matcher}')
       matches = Path(
                 export_dir, f'{conf["output"]}.h5')
@@ -115,54 +116,6 @@ def select_crop_images(image_list: str, image_dir: str, export_dir: str, num_pro
       logger.info(f'Selected images from {image_dir} to {export_dir}. DONE!')
 
 
-def find_closest(lst, x):
-    """
-    在有序列表 lst 中找到与给定值 x 大小最接近的元素。
-    """
-    n = len(lst)
-    if x <= lst[0]:
-        return lst[0]
-    elif x >= lst[n-1]:
-        return lst[n-1]
-    else:
-        # 二分查找
-        low, high = 0, n-1
-        while low <= high:
-            mid = (low + high) // 2
-            if lst[mid] == x:
-                return lst[mid]
-            elif lst[mid] < x:
-                low = mid + 1
-            else:
-                high = mid - 1
-
-        # 最后返回距离 x 最近的元素
-        if lst[high] - x < x - lst[low]:
-            return lst[high]
-        else:
-            return lst[low]
-
-
-# def cal_two_frame_dis_yaw(query_dir, ref_dir, query_t, ref_t):
-#     query_ins_fname = Path(query_dir, "gps/ins.csv")
-#     query_df = pd.read_csv(query_ins_fname)
-#     query_df_timestamps = query_df["timestamp"].tolist()
-#     ref_ins_fname = Path(ref_dir, "gps/ins.csv")
-#     ref_df = pd.read_csv(ref_ins_fname)
-#     ref_df_timestamps = ref_df["timestamp"].tolist()
-
-#     closest_q_mini_t = find_closest(query_df_timestamps, query_t)
-#     q_north, q_east, q_yaw = query_df[query_df["timestamp"]==closest_q_mini_t]["northing"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["easting"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["yaw"].item()
-#     # print(q_north, q_east)
-#     closest_ref_mini_t = find_closest(ref_df_timestamps, ref_t)
-#     ref_north, ref_east, ref_yaw = ref_df[ref_df["timestamp"]==closest_ref_mini_t]["northing"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["easting"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["yaw"].item()
-#     dis = calculate_distance(q_north, q_east, ref_north, ref_east)
-#     view = calculate_view(q_yaw, ref_yaw)
-#     dis = calculate_distance(q_north, q_east, ref_north, ref_east)
-#     print("Distance:", dis)
-#     print("View:", view)
-
-
 def parser():
       parser = argparse.ArgumentParser(description='Extract features from images')
       parser.add_argument('--feature', type=str, default='superpoint', choices=extract_features.confs.keys())
@@ -172,20 +125,50 @@ def parser():
 
 
 if __name__ == '__main__':
-      matcher = 'superpoint+lightglue'
-      pairs = 'dataset/gt/robotcar_qAutumn_dbSuncloud.txt'
-      feature_path_q = 'dataset/features/Autumn_mini_val/superpoint.h5'
-      feature_path_r = 'dataset/features/Suncloud_mini_val/superpoint.h5'
-      export_dir = 'dataset/matches/qAutumn_dbSuncloud/'
-      match(matcher, pairs, Path(feature_path_q), Path(feature_path_r), Path(export_dir))
+      # matcher = 'superpoint+lightglue'
+      # pairs = 'dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt'
+      # feature_path_q = 'dataset/robotcar/features/Autumn_mini_val/superpoint.h5'
+      # feature_path_r = 'dataset/robotcar/features/Night_mini_val/superpoint.h5'
+      # export_dir = 'dataset/matches/qAutumn_dbNight/'
+      # match(matcher, pairs, Path(feature_path_q), Path(feature_path_r), Path(export_dir))
       # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
       # args = parser()
-      # root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
-      # features = ['superpoint', 'sift', 'disk']
-      # feature = 'sift'
-      # image_dir = Path('dataset/')
-      # export_dir = Path('features')
-      # extractor(feature, image_dir, export_dir)
+      
+      '''
+      Extract Features
+      
+            root_dir = Path('dataset/robotcar/')
+            features = ['superpoint', 'sift', 'disk']
+            for feature in features:
+                  extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+      '''
+      
+      '''
+      Match Features
+      '''
+      
+      logger.info(f'Matching Superpoint features')
+      matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
+      root_dir = Path('dataset/robotcar/gt')
+      features_path = Path('dataset/robotcar/features/superpoint.h5')
+      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
+      for matcher in matchers:
+            for pairs_path in pairs_paths:
+                  output_name = pairs_path.name.split('.')[0]
+                  match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+      
+      
+      logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
+      matchers = ['NN-ratio']
+      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
+      for matcher in matchers:
+            for pairs_path in pairs_paths:
+                  output_name = pairs_path.name.split('.')[0]
+                  match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+      
+      
+      
+            
       
       # datasets = ['Autumn_mini_val', 'Night_mini_val', 'Suncloud_mini_val']
       # root_dir = 'dataset/'

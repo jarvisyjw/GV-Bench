@@ -1,4 +1,12 @@
+import cv2
 from .. import logger
+
+
+def crop_image(image_dir: str):
+    im = cv2.imread(image_dir, cv2.IMREAD_COLOR)
+    h, w , c = im.shape
+    im = im[:h-160, :, :]
+    return im
 
 
 def load_gt(gt: str):
@@ -50,4 +58,3 @@ def gt_loader(gt: str):
             line = line.split(', ')
             query, reference, label = line
             yield set(query, reference, label)
-            
