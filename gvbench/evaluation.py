@@ -7,9 +7,11 @@ from scipy.special import softmax
 import h5py
 from typing import Tuple
 import cv2
+import multiprocessing
 
 
 from . import logger
+from .utils import parse_pairs
 
 
 def names_to_pair(name0, name1, separator='/'):
@@ -193,11 +195,56 @@ def RANSACwithF(name0: str, name1: str,
     return pointMap, inliers
 
 
-def evaluate_from_pairs(pairs: list, 
-                        match_path: Path, 
-                        feature_path: Path, feature_path_r = None, 
-                        export_dir = None):
+def eval_from_pair(pair: Tuple[str, str, int],
+                   match_path: Path,
+                   feature_path: Path, feature_path_r = None,
+                   fout = None,
+                   return_all = False, allow_label = False):
+      
+      query, reference, label = pair
+      points_all, inliers = RANSACwithF(query, reference, match_path, feature_path, feature_path_r, fout)
+      
+      if return_all:
+            if allow_label:
+                  return inliers, points_all, label
+            else:
+                  return inliers, points_all
+      else:
+            if allow_label:
+                  return inliers, label
+            else:
+                  return inliers
 
+
+def eval_from_pairs(    queue: multiprocessing.Queue,
+                        pairs: list,
+                        match_path: Path,
+                        feature_path: Path, feature_path_r = None):
+      
+      inliers_list = []
+      labels = []
+      
+      if feature_path_r is None:
+            feature_path_r = feature_path
+      
+      for pair in tqdm(pairs, total=len(pairs)):
+                  inliers, label = eval_from_pair(pair, match_path, feature_path, feature_path_r, None, False, True)
+                  inliers_list.append(len(inliers))
+                  labels.append(label)
+                  
+      queue.put([inliers_list, labels])
+      # return inliers_list, labels
+      
+
+def eval_from_path(gt_file_path: Path, 
+                   match_path: Path, 
+                   feature_path: Path, feature_path_r = None, 
+                   export_dir = None,
+                   return_all = False):
+
+    pairs_loader = parse_pairs(str(gt_file_path), allow_label=True)
+    pairs = [(q, r, int(l)) for q, r, l in pairs_loader]
+    labels = [pair[2] for pair in pairs]
     
     if feature_path_r is None:
           feature_path_r = feature_path
@@ -208,80 +255,161 @@ def evaluate_from_pairs(pairs: list,
                 
           file_out = Path(export_dir, 'eval_log.txt')
           fout = open(str(file_out), 'w')
+          out_log = Path(export_dir, f'{gt_file_path.stem}_log.npy')
+      
     else:
           fout = None
+          out_log  = None
     
     inliers_list = []
-    labels = []
+    points_all_list = []
     
-    pairs_loader = parse_pairs(pairs)
-    pairs = [(q, r) for q, r, _ in pairs_loader]
-    
-          
     logger.info(f'Evaluating {len(pairs)} pairs')
+    
     for pair in tqdm(pairs, total=len(pairs)):
         logger.debug(f'pair: {pair}')
-        query, reference, label = pair
-        points_all, inliers = RANSACwithF(query, reference, match_path, feature_path, feature_path_r, fout)
-        
-        
-
-
-
-
-
-    with open(gt_file, 'r') as f:
-        gt_labels = f.readlines()
-    f.close()
-    matches = []
-    labels = []
-    for gt_label in tqdm(gt_labels):
-        query, reference, label = gt_label.strip('\n').split(', ')
-        logger.debug(f'query: {query}, reference: {reference}, label: {label}')
-        pointmap, inliers = matcher_helper.loadPointMap(query, reference, pointMap)
-        # if inliers == None:
-        #     logger.debug(f'original: {len(pointmap)}, inliers: {0}, label: {label}')
-        #     matches.append(pointmap)
-        #     labels.append(int(label))
-        #     continue
-        logger.debug(f'original: {len(pointmap)}, inliers: {len(inliers)}, label: {label}')
-        matches.append(len(inliers))
-        labels.append(int(label))
-    matches_pts = np.array(matches)
+        if return_all:
+                  inliers, points_all = eval_from_pair(pair, match_path, feature_path, feature_path_r, fout, return_all)
+                  inliers_list.append(len(inliers))
+                  points_all_list.append(points_all)
+        else:
+              inliers = eval_from_pair(pair, match_path, feature_path, feature_path_r, fout, return_all)
+              inliers_list.append(len(inliers)) 
+    
+    matches_pts = np.array(inliers_list)
     logger.debug(f'matches_pts: {matches_pts}')
     logger.debug(f'Max num of matches is {max(matches_pts)}')
     matches_pts_norm = matches_pts / max(matches_pts)
     average_precision = average_precision_score(labels, matches_pts_norm)
     precision, recall, TH = precision_recall_curve(labels, matches_pts_norm)
-    plot_pr_curve(recall, precision, average_precision, dataset, exp_name)
+    
+    if out_log is not None:
+          np.save(str(out_log), {'prob': matches_pts_norm, 'gt': labels})
+    
+    if return_all:
+          return precision, recall, average_precision, inliers_list, points_all_list
+    
+    return precision, recall, average_precision, inliers_list
+
+
+def eval_from_path_multiprocess(num_process: int,
+                                gt_file_path: Path, 
+                                match_path: Path, 
+                                feature_path: Path, feature_path_r = None, 
+                                export_dir = None,
+                                return_all = False):
+      
+      if feature_path_r is None:
+            feature_path_r = feature_path
+      
+      if export_dir is not None:
+            if not Path(export_dir).exists():
+                  Path(export_dir).mkdir(parents=True, exist_ok=True)
+                  
+            file_out = Path(export_dir, 'eval_log.txt')
+            fout = open(str(file_out), 'w')
+            out_log = Path(export_dir, f'{gt_file_path.stem}_log.npy')
+            
+      else:
+            fout = None
+            out_log  = None
+      
+      inliers_list = []
+      points_all_list = []
+            
+      logger.info(f'Using {num_process} processes for acceleration.')
+      q = multiprocessing.Queue()
+      
+      num_matches = []
+      labels = []
+      
+      pairs_loader = parse_pairs(str(gt_file_path), allow_label=True)
+      pairs = [(q, r, int(l)) for q, r, l in pairs_loader]
+      logger.info(f'Evaluating {len(pairs)} pairs')
+      
+      pairs_list = [pairs[i::num_process] for i in range(num_process)]
+      
+      processes = []
+      rets = []
+      
+     
+      for i in range(num_process):
+            p = multiprocessing.Process(target=eval_from_pairs, args=(q, pairs_list[i], match_path, feature_path, feature_path_r))
+            processes.append(p)
+            p.start()
+      
+      for p in processes:
+            ret = q.get()
+            # logger.info(f'ret: {ret}')
+            # rets.extend(ret)
+            num_matches.extend(ret[0])
+            labels.extend(ret[1])
+      
+      for p in processes:
+            p.join()
+      
+      
+      # for ret in rets:
+      #       logger.debug(f'ret: {ret}')
+      #       num_matches.extend(ret[0])
+      #       labels.extend(ret[1])
+
+      logger.debug(f'num_matches: {num_matches}')
+      logger.debug(f'labels: {labels}')
+      
+      
+      matches_pts = np.array(num_matches)
+      labels = np.array(labels)
+      
+      logger.debug(f'matches_pts: {matches_pts}')
+      logger.debug(f'Max num of matches is {max(matches_pts)}')
+      matches_pts_norm = matches_pts / max(matches_pts)
+      average_precision = average_precision_score(labels, matches_pts_norm)
+      precision, recall, TH = precision_recall_curve(labels, matches_pts_norm)
+      
+      if out_log is not None:
+            np.save(str(out_log), {'prob': matches_pts_norm, 'gt': labels})
+      
+      if return_all:
+            return precision, recall, average_precision, inliers_list, points_all_list
+      
+      return precision, recall, average_precision, inliers_list
+      
+
+
+if __name__ == '__main__':
+    
+    gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
+    match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbSuncloud/matches-NN-mutual-ratio.8.h5')
+    feature_path = Path('dataset/robotcar/features/sift.h5')
+    precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(80, gt_file_path, match_path, feature_path)
+    plot_pr_curve(recall, precision, average_precision, 'robotcar', 'sift')
     _, r_recall = max_recall(precision, recall)
 
     logger.info(f'\n' +
                 f'Evaluation results: \n' +
                 'Average Precision: {:.3f} \n'.format(average_precision) + 
-                f'Maximum & Minimum matches: {np.max(matches_pts)}' + ' & ' + f'{np.min(matches_pts)} \n' +
                 'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    output_path = Path(f'dataset/robotcar/exps/qAutumn_dbSuncloud/sift_NN/pr_curve.png')
+    if not output_path.parent.exists():
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(str(output_path))
+    
+    # for i in range(4):
+    #     gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist_{i}.txt'
+    #     match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbSuncloud/matches-NN-mutual-ratio.8.h5')
+    #     feature_path = Path('dataset/robotcar/features/sift.h5')
+    #     precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(80, gt_file_path, match_path, feature_path)
+    #     plot_pr_curve(recall, precision, average_precision, 'robotcar', 'sift')
+    #     _, r_recall = max_recall(precision, recall)
 
-# if __name__ == '__main__':
-#     # val_log='/home/jarvis/jw_ws/Verification/doppelgangers/logs/oxford_Autumn_SunCloud_finetune_2023-Dec-09-13-21-54/test_doppelgangers_list.npy'
-#     val_log = '/home/jarvis/jw_ws/Verification/doppelgangers/logs/oxford_Autumn_SunCloud_2023-Dec-08-18-54-40/test_doppelgangers_list.npy'
-#     # val_log = '/home/jarvis/jw_ws/Verification/doppelgangers/logs/oxford_qAutumn_dbNight_val_2023-Dec-07-13-18-31/test_doppelgangers_list.npy'
-
-#     import numpy
-#     result_list = numpy.load(val_log, allow_pickle=True)
-# #     import pdb; pdb.set_trace()
-#     result_list = result_list.tolist()
-#     pred = result_list['pred']
-#     gt_list = result_list['gt']
-#     prob = result_list['prob']
-#     y_scores_s = softmax(prob, axis=1)
-#     y_scores = y_scores_s[:, 1]
-#     precision, recall, TH = precision_recall_curve(gt_list, y_scores)
-#     average_precision = average_precision_score(gt_list, y_scores)
-#     plot_pr_curve(recall, precision, average_precision, 'robotcar', 'doppelgangers')
-#     plt.show()
-# #     import pdb; pdb.set_trace()
-#     # plt.scatter(recall, precision, c = np.array([*TH,1]).reshape(-1,1))
-# #     plt.plot(recall, precision)
-# #     plot_pr_curve()
-#     # plt.show()
+    #     logger.info(f'\n' +
+    #                 f'Evaluation results: \n' +
+    #                 'Average Precision: {:.3f} \n'.format(average_precision) + 
+    #                 'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    #     output_path = Path(f'dataset/robotcar/exps/qAutumn_dbSuncloud/sift_NN/pr_curve_dist_{i}.png')
+    #     if not output_path.parent.exists():
+    #             output_path.parent.mkdir(parents=True, exist_ok=True)
+    #     plt.savefig(str(output_path))
+    #     plt.clf()
+      

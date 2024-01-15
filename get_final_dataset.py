@@ -12,7 +12,7 @@ from multiprocessing import Process, Queue
 import multiprocessing, threading
 
 
-from gvbench.utils.io import gt_loader, load_gt, parse_pairs, write_pairs
+from gvbench.utils import gt_loader, load_gt, parse_pairs, write_pairs
 from gvbench import logger
 
 os.environ['OPENCV_PYTHON_HIDE_WINDOW'] = 'true'
@@ -333,6 +333,50 @@ def cal_two_frame_dis_yaw(query_dir, ref_dir, query_t, ref_t):
     # print("View:", view)
 
 
+def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
+    gt = []
+    for pair_t in tqdm(pairs_timestamp, total = len(pairs_timestamp)):
+        q_t, r_t = pair_t
+        view, dis = cal_two_frame_dis_yaw(query_dataset_dir, ref_dataset_dir, int(q_t), int(r_t))
+        # pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", label_t)
+        # logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
+        if (view < 40 and dis < 25):
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", 1)
+            logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
+            gt.append(pair)
+        else:
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", 0)
+            logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
+            gt.append(pair)
+    queue.put(gt)
+    
+    
+def gt_gen_multiprocess(pairs, query_dataset, ref_dataset, output_dir, num_process=8):
+    query_dataset_dir = f"dataset/robotcar/{query_dataset}"
+    ref_dataset_dir = f"dataset/robotcar/{ref_dataset}"
+    pairs_loader = parse_pairs(pairs)
+    pairs_timestamp = [(q.strip('.jpg').split('/')[-1], r.strip('.jpg').split('/')[-1]) for q, r in pairs_loader]
+    
+    gts = []
+    pairs_timestamp = [pairs_timestamp[i::num_process] for i in range(num_process)]
+    q = Queue()
+    processes = []
+    # rets = [[dist_1, dist_2, dist_3, dist_4, dist_null]]
+    for i in range(num_process):
+            p = Process(target=gt_gen, args=(q, pairs_timestamp[i], query_dataset_dir, ref_dataset_dir))
+            processes.append(p)
+            p.start()
+    for p in processes:
+        gts.extend(q.get())
+    for p in processes:
+        p.join()
+        
+    # import pdb; pdb.set_trace()
+    # print(dist, len(dists))
+    # concate_lists = concate_list(dists)
+    return gts, len(gts)
+    
+
 def split_view(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
     # query_dataset_dir = f"dataset/robotcar/{query_dataset}"
     # ref_dataset_dir = f"dataset/robotcar/{ref_dataset}"
@@ -481,13 +525,20 @@ def write_dists(dist_list, output_dir):
             #     dist_dir.parent.mkdir(parents=True)
             write_pairs(str(dist_dir), dist)
         N += 1
+
+
+# def write_gts(gts, output_dir):
+#     if not Path(output_dir).exists():
+#         Path(output_dir).mkdir(parents=True)
+    
     
     
 
 if __name__ == '__main__':
-    dist_1, _ = split_dataset("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 40)
+    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 80)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
-    write_dists(dist_1, "dataset/robotcar/gt")
+    print(f'# of gts: {num_gts}')
+    write_pairs(gts, "dataset/robotcar/gt/robotcar_qAutumn_dbNight_new.txt")
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)

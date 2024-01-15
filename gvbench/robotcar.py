@@ -45,14 +45,14 @@ def extractor(feature: str, image_dir: Path, export_dir: Path):
 
 def match(export_dir: Path, matcher: str, pairs: Path, feature_path_q: Path, feature_path_r = None):
       pairs_loader = parse_pairs(pairs)
-      pairs = [(q, r) for q, r, _ in pairs_loader]
+      pairs = [(q, r) for q, r in pairs_loader]
       conf = match_features.confs[matcher]
       if feature_path_r is None:
             feature_path_r = feature_path_q
       logger.info(f'Matching {feature_path_q.name} to {feature_path_r.name} using {matcher}')
       matches = Path(
                 export_dir, f'{conf["output"]}.h5')
-      match_features.match_from_pairs(conf, pairs, matches, feature_path_q, feature_path_r)
+      match_features.match_from_pairs(conf, pairs, matches, feature_path_q, feature_path_r, True)
       
 
 def crop_images_list(image_dir: Path, export_dir: Path, image_list: list):
@@ -147,24 +147,32 @@ if __name__ == '__main__':
       Match Features
       '''
       
-      logger.info(f'Matching Superpoint features')
-      matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
+      # logger.info(f'Matching Superpoint features')
+      # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
       root_dir = Path('dataset/robotcar/gt')
-      features_path = Path('dataset/robotcar/features/superpoint.h5')
-      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
-      for matcher in matchers:
-            for pairs_path in pairs_paths:
-                  output_name = pairs_path.name.split('.')[0]
-                  match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+      # features_path = Path('dataset/robotcar/features/superpoint.h5')
+      # pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
+      # for matcher in matchers:
+      #       for pairs_path in pairs_paths:
+      #             output_name = pairs_path.name.split('.')[0]
+      #             match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
       
       
       logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
       matchers = ['NN-ratio']
-      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
+      features_path = Path('dataset/robotcar/features/sift.h5')
+      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      processes = []
       for matcher in matchers:
             for pairs_path in pairs_paths:
                   output_name = pairs_path.name.split('.')[0]
-                  match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+                  p = multiprocessing.Process(target=match, args=(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path))
+                  p.start()
+                  processes.append(p)
+      
+      for p in processes:
+            p.join()
+                  # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
       
       
       

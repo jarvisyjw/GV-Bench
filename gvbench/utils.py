@@ -1,5 +1,5 @@
 import cv2
-from .. import logger
+from . import logger
 
 
 def crop_image(image_dir: str):
@@ -26,8 +26,11 @@ def load_gt(gt: str):
     return querys, references, labels
 
 
-def parse_pairs(gt: str):
+def parse_pairs(gt: str, allow_label = False):
+      
     logger.info(f'Loading ground truth from {gt}')
+    logger.debug(f'Allow label: {allow_label}')
+    
     f = open(gt, 'r')
     for line in f.readlines():
         line = line.strip('\n')
@@ -36,7 +39,10 @@ def parse_pairs(gt: str):
         else:
             line = line.split(', ')
             query, reference, label = line
-            yield query, reference, label
+            if allow_label:
+                  yield query, reference, label
+            else:
+                  yield query, reference
 
 
 def write_pairs(file: str, pairs: list):
@@ -58,3 +64,16 @@ def gt_loader(gt: str):
             line = line.split(', ')
             query, reference, label = line
             yield set(query, reference, label)
+            
+
+def read_image(path, grayscale=False):
+    if grayscale:
+        mode = cv2.IMREAD_GRAYSCALE
+    else:
+        mode = cv2.IMREAD_COLOR
+    image = cv2.imread(str(path), mode)
+    if image is None:
+        raise ValueError(f'Cannot read image {path}.')
+    if not grayscale and len(image.shape) == 3:
+        image = image[:, :, ::-1]  # BGR to RGB
+    return image
