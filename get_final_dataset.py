@@ -535,10 +535,18 @@ def write_dists(dist_list, output_dir):
     
 
 if __name__ == '__main__':
-    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt", "Autumn_val", "Suncloud_val", "dataset/robotcar/gt", 20)
-    # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
-    print(f'# of gts: {num_gts}')
-    write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt", gts)
+    from gvbench.utils import write_to_pairs
+    gt = "dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt"
+    pairs = "dataset/robotcar/pairs/qAutumn_dbNight.txt"
+    if not Path(pairs).parent.exists():
+        Path(pairs).parent.mkdir(parents=True)
+    write_to_pairs(gt, pairs)
+    
+    
+    # gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt", "Autumn_val", "Suncloud_val", "dataset/robotcar/gt", 20)
+    # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
+    # print(f'# of gts: {num_gts}')
+    # write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt", gts)
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)
