@@ -379,18 +379,18 @@ def eval_from_path_multiprocess(num_process: int,
 
 if __name__ == '__main__':
     
-    gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
-    match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbSuncloud/matches-NN-mutual-ratio.8.h5')
-    feature_path = Path('dataset/robotcar/features/sift.h5')
-    precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(80, gt_file_path, match_path, feature_path)
-    plot_pr_curve(recall, precision, average_precision, 'robotcar', 'sift')
+    gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt'
+    match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbNight/loftr.h5')
+    feature_path = Path('dataset/robotcar/features/loftr_kpts.h5')
+    precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+    plot_pr_curve(recall, precision, average_precision, 'Day2Night', 'LoFTR')
     _, r_recall = max_recall(precision, recall)
 
     logger.info(f'\n' +
                 f'Evaluation results: \n' +
                 'Average Precision: {:.3f} \n'.format(average_precision) + 
                 'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
-    output_path = Path(f'dataset/robotcar/exps/qAutumn_dbSuncloud/sift_NN/pr_curve.png')
+    output_path = Path(f'dataset/robotcar/exps/qAutumn_dbNight/LoFTR/pr_curve.png')
     if not output_path.parent.exists():
             output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(str(output_path))

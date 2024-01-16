@@ -120,31 +120,17 @@ def select_crop_images(image_list: str, image_dir: str, export_dir: str, num_pro
 def loftr(pairs_path: Path, 
           image_dir: Path, 
           match_path: Path, 
-          features: Path, features_ref: Path = None,
-          max_kps: int = 8192,
-          overwrite: bool = False):
+          features: Path):
       
       logger.info(f'Matching LoFTR for {pairs_path} images')
-      pairs_loader = parse_pairs(pairs_path)
-      pairs = [(q, r) for q, r in pairs_loader]
+      # pairs_loader = parse_pairs(pairs_path)
+      # pairs = [(q, r) for q, r in pairs_loader]
       conf = match_dense.confs['loftr']
-
-      if features is None:
-            features = 'feats_'
-
-      if isinstance(features, Path):
-            features_q = features
-
-      if features_ref is None:
-            features_ref = []
       
-      if not match_path.parent.exists():
-            match_path.parent.mkdir(parents=True, exist_ok=True)
-      
-      match_dense.match_pairs(conf, pairs, image_dir, 
-                              match_path, features_q, features_ref, 
-                              max_kps, overwrite)
-
+      match_dense.main(conf, 
+                       pairs_path, 
+                       image_dir, 
+                       match_path, features)
 
 
 
@@ -206,9 +192,9 @@ if __name__ == '__main__':
       # for p in processes:
       #       p.join()
                   # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
-      root_dir = Path('dataset/robotcar/gt')
+      root_dir = Path('dataset/robotcar/')
       features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
-      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
       for pairs_path in pairs_paths:
             logger.info(f'Matching LoFTR for {pairs_path} images')
             output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')

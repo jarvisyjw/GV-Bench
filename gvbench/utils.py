@@ -78,3 +78,13 @@ def read_image(path, grayscale=False):
     if not grayscale and len(image.shape) == 3:
         image = image[:, :, ::-1]  # BGR to RGB
     return image
+
+
+def write_to_pairs(gt: str, pairs: str):
+    logger.info(f'Loading ground truth from {gt}')
+    loader = parse_pairs(gt)
+    gts = [(q,r) for q,r in loader]
+    logger.info(f'Writing pairs to {pairs}')
+    f = open(pairs, 'w')
+    for gt in tqdm(gts):
+        f.write(f'{gt[0]} {gt[1]}\n')
