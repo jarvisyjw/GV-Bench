@@ -341,11 +341,11 @@ def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
         # pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", label_t)
         # logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
         if (view < 40 and dis < 25):
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", 1)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Suncloud_mini_val/{r_t}.jpg", 1)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
         else:
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", 0)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Suncloud_mini_val/{r_t}.jpg", 0)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
     queue.put(gt)
@@ -535,10 +535,10 @@ def write_dists(dist_list, output_dir):
     
 
 if __name__ == '__main__':
-    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 80)
+    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt", "Autumn_val", "Suncloud_val", "dataset/robotcar/gt", 20)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
     print(f'# of gts: {num_gts}')
-    write_pairs(gts, "dataset/robotcar/gt/robotcar_qAutumn_dbNight_new.txt")
+    write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt", gts)
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)

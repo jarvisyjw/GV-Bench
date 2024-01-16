@@ -4,8 +4,9 @@ from tqdm import tqdm
 import argparse
 import os
 import pandas as pd
+from typing import Dict
 
-from hloc import extract_features, match_features, visualization, match_features
+from hloc import extract_features, match_features, visualization, match_dense
 import multiprocessing, threading
 import h5py
 from .utils import gt_loader, load_gt, parse_pairs
@@ -116,6 +117,37 @@ def select_crop_images(image_list: str, image_dir: str, export_dir: str, num_pro
       logger.info(f'Selected images from {image_dir} to {export_dir}. DONE!')
 
 
+def loftr(pairs_path: Path, 
+          image_dir: Path, 
+          match_path: Path, 
+          features: Path, features_ref: Path = None,
+          max_kps: int = 8192,
+          overwrite: bool = False):
+      
+      logger.info(f'Matching LoFTR for {pairs_path} images')
+      pairs_loader = parse_pairs(pairs_path)
+      pairs = [(q, r) for q, r in pairs_loader]
+      conf = match_dense.confs['loftr']
+
+      if features is None:
+            features = 'feats_'
+
+      if isinstance(features, Path):
+            features_q = features
+
+      if features_ref is None:
+            features_ref = []
+      
+      if not match_path.parent.exists():
+            match_path.parent.mkdir(parents=True, exist_ok=True)
+      
+      match_dense.match_pairs(conf, pairs, image_dir, 
+                              match_path, features_q, features_ref, 
+                              max_kps, overwrite)
+
+
+
+
 def parser():
       parser = argparse.ArgumentParser(description='Extract features from images')
       parser.add_argument('--feature', type=str, default='superpoint', choices=extract_features.confs.keys())
@@ -149,7 +181,7 @@ if __name__ == '__main__':
       
       # logger.info(f'Matching Superpoint features')
       # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
-      root_dir = Path('dataset/robotcar/gt')
+      # root_dir = Path('dataset/robotcar/gt')
       # features_path = Path('dataset/robotcar/features/superpoint.h5')
       # pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
       # for matcher in matchers:
@@ -158,23 +190,29 @@ if __name__ == '__main__':
       #             match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
       
       
-      logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
-      matchers = ['NN-ratio']
-      features_path = Path('dataset/robotcar/features/sift.h5')
-      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
-      processes = []
-      for matcher in matchers:
-            for pairs_path in pairs_paths:
-                  output_name = pairs_path.name.split('.')[0]
-                  p = multiprocessing.Process(target=match, args=(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path))
-                  p.start()
-                  processes.append(p)
+      # logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
+      # matchers = ['NN-ratio']
+      # features_path = Path('dataset/robotcar/features/sift.h5')
+      # features_path = Path('dataset/robotcar/features/sift.h5')
+      # pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      # processes = []
+      # for matcher in matchers:
+      #       for pairs_path in pairs_paths:
+      #             output_name = pairs_path.name.split('.')[0]
+      #             p = multiprocessing.Process(target=match, args=(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path))
+      #             p.start()
+      #             processes.append(p)
       
-      for p in processes:
-            p.join()
+      # for p in processes:
+      #       p.join()
                   # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
-      
-      
+      root_dir = Path('dataset/robotcar/gt')
+      features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
+      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      for pairs_path in pairs_paths:
+            logger.info(f'Matching LoFTR for {pairs_path} images')
+            output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
+            loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
       
             
       

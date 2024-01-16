@@ -1,5 +1,6 @@
 import cv2
 from . import logger
+from tqdm import tqdm
 
 
 def crop_image(image_dir: str):
@@ -48,7 +49,7 @@ def parse_pairs(gt: str, allow_label = False):
 def write_pairs(file: str, pairs: list):
     logger.info(f'Writing pairs to {file}')
     f = open(file, 'w')
-    for pair in pairs:
+    for pair in tqdm(pairs):
         f.write(f'{pair[0]}, {pair[1]}, {pair[2]}\n')
     logger.info(f'Wrote pairs to {file}. DONE!')
             

@@ -45,11 +45,15 @@ python -m pip install -e .
 ### Feature Extraction & Matching
 #### Extraction & Matching
 - Robotcar GV
-  - [ ] SIFT -> NN, LightGlue
-    - [ ] Extraction
-    - [ ] Matching
-  - [ ] ORB -> NN, LightGlue
-  - [ ] SuperPoint -> NN, LightGlue
+  - [ ] SIFT -> NN, (TODO: LightGlue)
+    - [x] Extraction
+    - [x] Matching
+  - [ ] ORB -> (TODO: LightGlue)
+    - [ ] NN
+  - [ ] SuperPoint -> 
+    - [x] NN 
+    - [ ] LightGlue
+    - [x] SuperGlue
   - [ ] LoFTR
   - [ ] Doppelgangers
   - [ ] GMS/COTR/Huang Xinghong's Method
@@ -60,23 +64,37 @@ python -m pip install -e .
 - [x] Viewpoint Quantification of two images
   - [x] Post-processing the existing lists
     - [x] dist_{0:4}
+  
+#### Oxford RobotCar Seasons V2
 
 ### Evaluation
+- [ ] SIFT + NN
+- [ ] ORB + NN
+- [ ] SuperPoint + NN
+- [ ] SuperPoint + SuperGlue
+- [ ] Disk + SuperGlue
+- [ ] LoFTR
 
 
-
-
-
-
-
-# Sequential Loop Closure Verification Dataset
+# Loop Closure Verification Dataset 
+(Based on Oxford RobotCar)
 
 This dataset is derived from [Oxford RobotCar Dataset](https://robotcar-dataset.robots.ox.ac.uk/datasets/) contains three appearance-changing (Day-Night, Seasonal, Temporal) repetitive routes (SunCloud, Night, Autumn).
 
 ```bash
 SunCloud: 2014-11-18-13-20-12/stereo/centre/
 Night: 2014-12-16-18-44-24/stereo/centre/ # of images 32585
-Autumn: 2014-12-09-13-21-02/stereo/centre/ 
+Autumn: 2014-12-09-13-21-02/stereo/centre/
+
+Snow-winter: 2015-02-03-08-45-10/stereo/centre/
+Night-Rain: 2014-12-17-18-18-43/
+
+Overcast-Summer: 2015-05-22-11-14-30
+
+
+Overcast-Sun: 2015-11-13-10-28-08
+Overcast: 2014-12-02-15-30-08
+
 ```
 
 ## Dataset
