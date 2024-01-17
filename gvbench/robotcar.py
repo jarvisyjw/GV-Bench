@@ -192,14 +192,25 @@ if __name__ == '__main__':
       # for p in processes:
       #       p.join()
                   # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
-      root_dir = Path('dataset/robotcar/')
-      features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
-      pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
-      for pairs_path in pairs_paths:
-            logger.info(f'Matching LoFTR for {pairs_path} images')
-            output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
-            loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
+      # root_dir = Path('dataset/robotcar/')
+      # features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
+      # # pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
+      # pairs_path = Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')
+      # # for pairs_path in pairs_paths:
+      # logger.info(f'Matching LoFTR for {pairs_path} images')
+      # output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
+      # loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
       
+      pairs_path = Path('dataset/robotcar/pairs/qAutumn_dbSuncloud.txt')
+      match_path = Path('dataset/robotcar/matches/qAutumn_dbSuncloud/matches-disk-lightglue.h5')
+      feature_path = Path('dataset/robotcar/features/disk.h5')
+      match_features.match_from_paths(match_features.confs['disk+lightglue'],
+                                      pairs_path,
+                                      match_path,
+                                      feature_path,
+                                      feature_path)
+                                      
+                                      
             
       
       # datasets = ['Autumn_mini_val', 'Night_mini_val', 'Suncloud_mini_val']

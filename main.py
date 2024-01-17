@@ -6,10 +6,10 @@ import cv2
 # import sys
 # sys.path.append('third_party/Hierarchical-Localization/')
 
-from hloc import extract_features, match_features, visualization
+from hloc import extract_features, match_features, visualization, match_dense
 
 from gvbench import logger
-from gvbench.utils import crop
+# from gvbench.utils import crop
 
 
 def extractor(feature: str, image_dir: str, export_dir: str):
@@ -24,19 +24,19 @@ def extractor(feature: str, image_dir: str, export_dir: str):
       return feature_path
 
 
-def crop_images(image_dir: str, export_dir: str):
+# def crop_images(image_dir: str, export_dir: str):
       
-      logger.info(f'Cropping images from {image_dir} and export to {export_dir}')
-      image_dir = Path(image_dir)
-      export_dir = Path(export_dir)
-      if not export_dir.exists():
-            export_dir.mkdir(parents=True, exist_ok=True)
-      for image_path in tqdm(image_dir.glob('**/*.jpg'), total = len(list(image_dir.glob('**/*.jpg')))):
-            # logger.debug(f'Cropping {image_path}')
-            image = io.crop_image(str(image_path))
-            if not cv2.imwrite(str(export_dir / image_path.name), image):
-                  raise Exception("Could not write image {}".format(export_dir / image_path.name))
-      logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
+#       logger.info(f'Cropping images from {image_dir} and export to {export_dir}')
+#       image_dir = Path(image_dir)
+#       export_dir = Path(export_dir)
+#       if not export_dir.exists():
+#             export_dir.mkdir(parents=True, exist_ok=True)
+#       for image_path in tqdm(image_dir.glob('**/*.jpg'), total = len(list(image_dir.glob('**/*.jpg')))):
+#             # logger.debug(f'Cropping {image_path}')
+#             image = io.crop_image(str(image_path))
+#             if not cv2.imwrite(str(export_dir / image_path.name), image):
+#                   raise Exception("Could not write image {}".format(export_dir / image_path.name))
+#       logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
 
 
 def parser():
@@ -48,9 +48,33 @@ def parser():
 
 
 if __name__ == '__main__':
+
+      image_path = Path('dataset/robotcar/images')
+      conf = match_dense.confs['loftr']
+      
+
+      for dataset in ['qAutumn_dbNight', 'qAutumn_dbSuncloud']:
+            pairs_path = Path(f'dataset/robotcar/pairs/{dataset}.txt/')
+            matches_path = Path(f'dataset/robotcar/matches/robotcar_{dataset}/matches-loftr.h5')
+            feature_path = Path('dataset/robotcar/features/kpts-loftr.h5')
+            logger.info(f'Matching {dataset} dataset \n' + 
+                        f'pairs_path: {pairs_path} \n'  +
+                        f'matches_path: {matches_path} \n ' +
+                              f'feature_path: {feature_path}')
+
+            if not feature_path.exists():
+                  feature_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            if not matches_path.exists():
+                  matches_path.parent.mkdir(parents=True, exist_ok=True)
+
+            match_dense.match_and_assign(conf, pairs_path, image_path, matches_path, feature_path)
+
+
+
       # args = parser()
-      root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
-      image_dir = root_dir + 'Autumn_val/stereo/centre/'
-      export_dir = root_dir + 'Autumn_val/crop/'
-      crop_images(image_dir, export_dir)
+      # root_dir = '/mnt/DATA_JW/dataset/LCV_DATASET/robotcar/'
+      # image_dir = root_dir + 'Autumn_val/stereo/centre/'
+      # export_dir = root_dir + 'Autumn_val/crop/'
+      # crop_images(image_dir, export_dir)
       # extractor(args.feature, image_dir, export_dir)

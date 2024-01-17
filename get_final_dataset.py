@@ -535,10 +535,10 @@ def write_dists(dist_list, output_dir):
     
 
 if __name__ == '__main__':
-    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 80)
-    # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
-    print(f'# of gts: {num_gts}')
-    write_pairs(gts, "dataset/robotcar/gt/robotcar_qAutumn_dbNight_new.txt")
+    # gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt", "Autumn_val", "Night_val", "dataset/robotcar/gt", 80)
+    # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
+    # print(f'# of gts: {num_gts}')
+    # write_pairs(gts, "dataset/robotcar/gt/robotcar_qAutumn_dbNight_new.txt")
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)
