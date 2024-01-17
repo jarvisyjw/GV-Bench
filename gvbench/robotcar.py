@@ -160,20 +160,31 @@ if __name__ == '__main__':
             for feature in features:
                   extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
       '''
-      
+      root_dir = Path('dataset/robotcar/')
+      features = ['superpoint', 'sift', 'disk']
+      for feature in features:
+            extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+
       '''
       Match Features
       '''
       
-      # logger.info(f'Matching Superpoint features')
-      # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
-      # root_dir = Path('dataset/robotcar/gt')
-      # features_path = Path('dataset/robotcar/features/superpoint.h5')
-      # pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')] 
-      # for matcher in matchers:
-      #       for pairs_path in pairs_paths:
-      #             output_name = pairs_path.name.split('.')[0]
-      #             match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+      logger.info(f'Matching Superpoint features')
+      # matchers = ['superglue', 'NN-superpoint']
+      root_dir = Path('dataset/robotcar/gt')
+      features_path = Path('dataset/robotcar/features/superpoint.h5')
+      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      for feature in features:
+            if feature == 'superpoint':
+                  matchers = ['superglue', 'NN-superpoint']
+            if feature == 'sift':
+                  matchers = ['NN-ratio']
+            if feature == 'disk':
+                  matchers = ['disk+lightglue']
+            for matcher in matchers:
+                  for pairs_path in pairs_paths:
+                        output_name = pairs_path.name.split('.')[0]
+                        match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
       
       
       # logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
@@ -192,13 +203,13 @@ if __name__ == '__main__':
       # for p in processes:
       #       p.join()
                   # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
-      root_dir = Path('dataset/robotcar/')
-      features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
-      pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
-      for pairs_path in pairs_paths:
-            logger.info(f'Matching LoFTR for {pairs_path} images')
-            output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
-            loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
+      # root_dir = Path('dataset/robotcar/')
+      # features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
+      # pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
+      # for pairs_path in pairs_paths:
+      #       # logger.info(f'Matching LoFTR for {pairs_path} images')
+      #       output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
+      #       loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
       
             
       

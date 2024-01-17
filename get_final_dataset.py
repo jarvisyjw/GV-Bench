@@ -536,8 +536,8 @@ def write_dists(dist_list, output_dir):
 
 if __name__ == '__main__':
     from gvbench.utils import write_to_pairs
-    gt = "dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt"
-    pairs = "dataset/robotcar/pairs/qAutumn_dbNight.txt"
+    gt = "dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt"
+    pairs = "dataset/robotcar/pairs/qAutumn_dbSuncloud.txt"
     if not Path(pairs).parent.exists():
         Path(pairs).parent.mkdir(parents=True)
     write_to_pairs(gt, pairs)
