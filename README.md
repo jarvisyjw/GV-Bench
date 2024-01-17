@@ -82,6 +82,23 @@ python -m pip install -e .
 This dataset is derived from [Oxford RobotCar Dataset](https://robotcar-dataset.robots.ox.ac.uk/datasets/) contains three appearance-changing (Day-Night, Seasonal, Temporal) repetitive routes (SunCloud, Night, Autumn).
 
 ```bash
+# Day Night Changes
+Day to Day: qAutumn_dbSunCloud
+Day to Night: qAutumn_dbNight
+
+# Seasonal Changes
+Summer to Winter: qSummer_dbWinter
+Autumn to Winter: qAutumn_dbSnow
+
+# Weather Changes
+Night to Rain: qNight_dbRain
+```
+
+
+```bash
+Day to Day: SunCloud 2014-11-18-13-20-12/stereo/centre/
+
+
 SunCloud: 2014-11-18-13-20-12/stereo/centre/
 Night: 2014-12-16-18-44-24/stereo/centre/ # of images 32585
 Autumn: 2014-12-09-13-21-02/stereo/centre/
