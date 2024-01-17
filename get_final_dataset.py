@@ -341,7 +341,7 @@ def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
         # pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", label_t)
         # logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
         if (view < 40 and dis < 25):
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Suncloud_mini_val/{r_t}.jpg", 1)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Sonw_mini_val/{r_t}.jpg", 1)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
         else:
@@ -427,6 +427,15 @@ def concate_list(list_2D):
     #     for j in range(M):
     #         concate_lists[i].extend(list_2D[i][j])
     return concate_lists
+
+
+def copy_files_from_list(pairs: str, root: str):
+    f = open(pairs, 'r')
+    for line in tqdm(f):
+        f_str = line.strip('\n').split(' ')
+        ref_name = f_str[1]
+        ref_dir = Path(root, ref_name)
+        shutil.copy(str(ref_dir), str(Path(root, 'Snow_mini_val')))
             
 
 def split_dataset(pairs, query_dataset, ref_dataset, output_dir, num_process=8):
@@ -535,18 +544,31 @@ def write_dists(dist_list, output_dir):
     
 
 if __name__ == '__main__':
-    from gvbench.utils import write_to_pairs
-    gt = "dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt"
-    pairs = "dataset/robotcar/pairs/qAutumn_dbNight.txt"
-    if not Path(pairs).parent.exists():
-        Path(pairs).parent.mkdir(parents=True)
-    write_to_pairs(gt, pairs)
+    # pairs = 'dataset/robotcar/pairs/qAutumn_dbSnow.txt'
+    # root = 'dataset/robotcar/images/'
+    # copy_files_from_list(pairs, root)
+    # from gvbench.utils import write_to_pairs
+    # gt = "dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt"
+    # pairs = "dataset/robotcar/pairs/qAutumn_dbNight.txt"
+    # if not Path(pairs).parent.exists():
+    #     Path(pairs).parent.mkdir(parents=True)
+    # write_to_pairs(gt, pairs)
+    file = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
+    file_out = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt'
+    f = open(file, 'r')
+    fout = open(file_out, 'w')
+    for line in tqdm(f):
+        f_str = line.strip('\n').split(', ')
+        q, r, l = f_str
+        # r_name = f"Snow_mini_val/{r.split('/')[-1]}"
+        fout.write(f'{q} {r} {l}\n')
+        
     
     
-    # gts, num_gts = gt_gen_multiprocess("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt", "Autumn_val", "Suncloud_val", "dataset/robotcar/gt", 20)
-    # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
+    # gts, num_gts = gt_gen_multiprocess("dataset/robotcar/pairs/qAutumn_dbSnow.txt", "Autumn_val", "Snow_val", "dataset/robotcar/gt", 20)
+    # # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
     # print(f'# of gts: {num_gts}')
-    # write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt", gts)
+    # write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSnow.txt", gts)
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)
