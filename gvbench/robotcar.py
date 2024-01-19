@@ -45,6 +45,9 @@ def extractor(feature: str, image_dir: Path, export_dir: Path):
 
 
 def match(export_dir: Path, matcher: str, pairs: Path, feature_path_q: Path, feature_path_r = None):
+      if not export_dir.exists():
+            export_dir.mkdir(parents=True, exist_ok=True)
+      
       pairs_loader = parse_pairs(pairs)
       pairs = [(q, r) for q, r in pairs_loader]
       conf = match_features.confs[matcher]
@@ -143,6 +146,38 @@ def parser():
 
 
 if __name__ == '__main__':
+      # confs = extract_features.confs['netvlad']
+      # image_dir = Path('dataset/robotcar/images')
+      # export_dir = Path('dataset/robotcar/features')
+      # feature_path = export_dir / '{}.h5'.format('netvlad')
+      # feature_path = extract_features.main(confs, image_dir, export_dir, feature_path=feature_path)
+      # image_dir = 'dataset/robotcar/images/Snow_mini_val'
+      # export_dir = 'dataset/robotcar/images/Snow_mini_val'
+      
+      # crop_images_multiprocess(image_dir, export_dir, 20)
+      # logger.info(f'Matching Superpoint features')
+      # matchers = ['superglue', 'NN-superpoint']
+      # root_dir = Path('dataset/robotcar/')
+      features = ['superpoint', 'sift', 'disk']
+      # for feature in features:
+      #       extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+      
+      root_dir = Path('dataset/robotcar/')
+      # features_path = Path('dataset/robotcar/features/superpoint.h5')
+      pairs_paths = [Path(root_dir, 'gt', 'robotcar_qAutumn_dbSnow.txt')]
+      for feature in features:
+            if feature == 'superpoint':
+                  matchers = ['superglue', 'NN-superpoint']
+            if feature == 'sift':
+                  matchers = ['NN-ratio']
+            if feature == 'disk':
+                  matchers = ['disk+lightglue']
+            for matcher in matchers:
+                  for pairs_path in pairs_paths:
+                        output_name = pairs_path.name.split('.')[0]
+                        match(Path(root_dir, 'matches', output_name), matcher, pairs_path, Path(root_dir, 'features', feature + '.h5'))
+      
+      
       # matcher = 'superpoint+lightglue'
       # pairs = 'dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt'
       # feature_path_q = 'dataset/robotcar/features/Autumn_mini_val/superpoint.h5'
@@ -192,13 +227,14 @@ if __name__ == '__main__':
       # for p in processes:
       #       p.join()
                   # match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
-      root_dir = Path('dataset/robotcar/')
-      features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
-      pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
-      for pairs_path in pairs_paths:
-            logger.info(f'Matching LoFTR for {pairs_path} images')
-            output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
-            loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
+      # root_dir = Path('dataset/robotcar/')
+      # features_path = Path('dataset/robotcar/features/loftr_kpts.h5')
+      # # pairs_paths = [Path(root_dir, 'pairs','qAutumn_dbNight.txt'), Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')]
+      # # for pairs_path in pairs_paths:
+      # pairs_path = Path(root_dir, 'pairs', 'qAutumn_dbSuncloud.txt')
+      # # logger.info(f'Matching LoFTR for {pairs_path} images')
+      # output_match_path = Path('dataset/robotcar/matches', pairs_path.name.split('.')[0], 'loftr.h5')
+      # loftr(pairs_path, Path('dataset/robotcar/images'), output_match_path, features_path)
       
             
       

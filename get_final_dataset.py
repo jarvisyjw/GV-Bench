@@ -553,15 +553,15 @@ if __name__ == '__main__':
     # if not Path(pairs).parent.exists():
     #     Path(pairs).parent.mkdir(parents=True)
     # write_to_pairs(gt, pairs)
-    file = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud.txt'
-    file_out = 'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_new.txt'
+    file = 'dataset/robotcar/gt/robotcar_qAutumn_dbSnow.txt'
+    file_out = 'dataset/robotcar/pairs/qAutumn_dbSnow.txt'
     f = open(file, 'r')
     fout = open(file_out, 'w')
     for line in tqdm(f):
-        f_str = line.strip('\n').split(', ')
+        f_str = line.strip('\n').split(' ')
         q, r, l = f_str
         # r_name = f"Snow_mini_val/{r.split('/')[-1]}"
-        fout.write(f'{q} {r} {l}\n')
+        fout.write(f'{q} {r}\n')
         
     
     

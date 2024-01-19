@@ -38,12 +38,16 @@ def parse_pairs(gt: str, allow_label = False):
         if line.startswith('#'):
             continue
         else:
-            line = line.split(', ')
+            line = line.split(' ')
             query, reference, label = line
             if allow_label:
-                  yield query, reference, label
+                
+                yield query, reference, label
+            # line = line.split(' ')
+            # query, reference = line
             else:
-                  yield query, reference
+                # query, reference = line
+                yield query, reference
 
 
 def write_pairs(file: str, pairs: list):
