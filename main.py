@@ -1,15 +1,10 @@
 import argparse
 from pathlib import Path
 from tqdm import tqdm
-import cv2
-
-# import sys
-# sys.path.append('third_party/Hierarchical-Localization/')
 
 from hloc import extract_features, match_features, visualization, match_dense
 
 from gvbench import logger
-# from gvbench.utils import crop
 
 
 def extractor(feature: str, image_dir: str, export_dir: str):
@@ -22,21 +17,6 @@ def extractor(feature: str, image_dir: str, export_dir: str):
       logger.info(f'Extracted {feature} to {feature_path}. DONE!')
       
       return feature_path
-
-
-# def crop_images(image_dir: str, export_dir: str):
-      
-#       logger.info(f'Cropping images from {image_dir} and export to {export_dir}')
-#       image_dir = Path(image_dir)
-#       export_dir = Path(export_dir)
-#       if not export_dir.exists():
-#             export_dir.mkdir(parents=True, exist_ok=True)
-#       for image_path in tqdm(image_dir.glob('**/*.jpg'), total = len(list(image_dir.glob('**/*.jpg')))):
-#             # logger.debug(f'Cropping {image_path}')
-#             image = io.crop_image(str(image_path))
-#             if not cv2.imwrite(str(export_dir / image_path.name), image):
-#                   raise Exception("Could not write image {}".format(export_dir / image_path.name))
-#       logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
 
 
 def parser():
