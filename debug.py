@@ -1,4 +1,4 @@
-from hloc.utils.io import list_h5_names
+from hloc.utils.io import list_h5_names, get_matches
 import h5py
 import pdb
 
@@ -38,7 +38,14 @@ def read_h5(path):
             # uncertainty = dset.attrs.get('uncertainty')
 
 if __name__ == '__main__':
-      file = 'dataset/robotcar/matches/robotcar_qAutumn_dbNight/loftr.h5'
-      # read_h5(file)
-      names = list_h5_names(file)
-      print(names)
+    file = 'dataset/tokyo247/matches/matches-loftr.h5'
+    matches, score = get_matches(file, 'query/00805.jpg', 'database/03816/381696.170_3946380.387/n74ZXxbSQwsFJvpCYh0PnA_012_180.jpg')
+    print(matches)
+    print(score)
+    # read_h5(file)
+    #   names = list_h5_names(file)
+    #   print(names)
+    #   for name in names:
+    #       n = name.split('/')[0]
+    #       if n == 'query':
+    #           print(name)

@@ -162,9 +162,9 @@ if __name__ == '__main__':
       # for feature in features:
       #       extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
       
-      root_dir = Path('dataset/tokyo247/')
+      root_dir = Path('dataset/robotcar/')
       # features_path = Path('dataset/robotcar/features/superpoint.h5')
-      pairs_paths = [Path(root_dir, 'pairs', 'pairs_from_retrieval.txt')]
+      pairs_paths = [Path(root_dir, 'pairs', 'qAutumn_dbRain.txt')]
       for feature in features:
             if feature == 'superpoint':
                   matchers = ['superglue', 'NN-superpoint']

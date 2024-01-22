@@ -133,3 +133,11 @@ dist_5: complement set of dist_0
 
 
 
+### Methods:
+#### Pairs from retrival
+```zsh
+
+```
+
+
+

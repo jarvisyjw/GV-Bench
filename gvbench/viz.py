@@ -12,8 +12,13 @@ import numpy as np
 import torch
 from pathlib import Path
 
+from hloc.utils.io import get_matches, get_keypoints, read_image
+
 from . import logger
 
+
+def name_to_pair(name: str):
+    return name.strip('.jpg').replace('/', '-')
 
 def cm_RdGn(x):
     """Custom colormap: red (0) -> yellow (0.5) -> green (1)."""
@@ -187,7 +192,7 @@ def save_plot(path, **kw):
     plt.savefig(path, bbox_inches="tight", pad_inches=0, **kw)
     
 
-def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75):
+def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75, save_dir = None):
     logger.info(f'Plot matches of {image0} and {image1}')
     
     matches, _ = get_matches(match_path, image0, image1)
@@ -207,10 +212,10 @@ def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_p
     plot_matches(kp_0, kp_1, a = 0.1)
     add_text(0, image0)
     add_text(1, image1)
-    # if save:
-    #     logger.info(f'Save image at {str(out)}')
-    #     if not out.exists():
-    #         out.parent.mkdir(parents=True, exist_ok=True)
-    #         save_plot(out)
-    #     else:
-    #         logger.info(f'Image already exists at {str(out)}')
+    if save_dir is not None:
+        logger.info(f'Save image at {str(save_dir)}')
+        if isinstance(save_dir, str):
+            save_dir = Path(save_dir)
+        if not save_dir.exists():
+            save_dir.mkdir(parents=True, exist_ok=True)
+        save_plot(save_dir / f'{name_to_pair(image0)}-{name_to_pair(image1)}.jpg')

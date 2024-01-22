@@ -450,7 +450,7 @@ if __name__ == '__main__':
     # logger.info(f'evaluating {gt_file_path.split("/")[-1]}')
     # features = ['sift', 'superpoint', 'disk']
 
-    # plt.clf()
+    
     # for feature in features:
     #     if feature == 'sift':
     #         matchers = ['NN']
@@ -473,6 +473,7 @@ if __name__ == '__main__':
     #         if not output_path.parent.exists():
     #                 output_path.parent.mkdir(parents=True, exist_ok=True)
     #         plt.savefig(str(output_path))
+    #         plt.clf()
         
     gt_file_path = 'dataset/tokyo247/pairs/pairs_from_retrieval_gt.txt'
     matcher = 'loftr'
