@@ -34,11 +34,32 @@ if __name__ == '__main__':
       # export_dir = root_dir + 'Autumn_val/crop/'
       # crop_images(image_dir, export_dir)
       # # extractor(args.feature, image_dir, export_dir)
+      
+      
       image_path = Path('dataset/tokyo247/images')
-      features = ['sift', 'superpoint', 'disk', 'netvlad', 'cosPlace']
-      export_path = Path('dataset/tokyo247/features')
-      for feature in features:
-            extractor(feature, image_path, export_path)
+      # features = ['sift', 'superpoint', 'disk', 'netvlad']
+      # export_path = Path('dataset/tokyo247/features')
+      # for feature in features:
+      #       extractor(feature, image_path, export_path)
+      
+      conf = match_dense.confs['loftr']
+      
+      
+      pairs_path = Path(f'dataset/tokyo247/pairs/pairs_from_retrieval.txt/')
+      matches_path = Path(f'dataset/robotcar/matches/matches-loftr.h5')
+      feature_path = Path('dataset/robotcar/features/kpts-loftr.h5')
+      logger.info(f'Matching Tokyo247 dataset \n' + 
+                  f'pairs_path: {pairs_path} \n'  +
+                  f'matches_path: {matches_path} \n' +
+                        f'feature_path: {feature_path}')
+
+      if not feature_path.exists():
+            feature_path.parent.mkdir(parents=True, exist_ok=True)
+      
+      if not matches_path.exists():
+            matches_path.parent.mkdir(parents=True, exist_ok=True)
+
+      match_dense.match_and_assign(conf, pairs_path, image_path, matches_path, feature_path)
       
       
       

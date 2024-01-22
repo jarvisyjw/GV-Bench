@@ -396,37 +396,37 @@ if __name__ == '__main__':
     # plt.savefig(str(output_path))
     
     # seqs = ['qAutumn_dbNight', 'qAutumn_dbSuncloud']
-    seqs = ['qAutumn_dbSnow']
-    for seq in seqs:
-        gt_file_path = f'dataset/robotcar/gt/robotcar_{seq}.txt'
-        logger.info(f'evaluating {seq}')
-        # features = ['superpoint', 'sift']
-        features = ['sift', 'superpoint', 'disk']
-        # matchers = ['loftr']
+    # seqs = ['qAutumn_dbSnow']
+    # for seq in seqs:
+    #     gt_file_path = f'dataset/robotcar/gt/robotcar_{seq}.txt'
+    #     logger.info(f'evaluating {seq}')
+    #     # features = ['superpoint', 'sift']
+    #     features = ['sift', 'superpoint', 'disk']
+    #     # matchers = ['loftr']
 
-        plt.clf()
-        for feature in features:
-            if feature == 'sift':
-                matchers = ['NN']
-            if feature == 'superpoint':
-                matchers = ['superglue', 'NN']
-            if feature == 'disk':
-                matchers = ['lightglue']
+    #     plt.clf()
+    #     for feature in features:
+    #         if feature == 'sift':
+    #             matchers = ['NN']
+    #         if feature == 'superpoint':
+    #             matchers = ['superglue', 'NN']
+    #         if feature == 'disk':
+    #             matchers = ['lightglue']
             
-            for matcher in matchers:
-                match_path = Path(f'dataset/robotcar/matches/robotcar_{seq}/matches-{feature}-{matcher}.h5')
-                feature_path = Path(f'dataset/robotcar/features/{feature}.h5')
-                precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
-                plot_pr_curve(recall, precision, average_precision, f'{matcher}', f'{seq}')
-                _, r_recall = max_recall(precision, recall)
-                logger.info(f'\n' +
-                    f'Evaluation results: \n' +
-                    'Average Precision: {:.3f} \n'.format(average_precision) + 
-                    'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
-                output_path = Path(f'dataset/robotcar/exps/{seq}/{feature}-{matcher}/pr_curve.png')
-                if not output_path.parent.exists():
-                        output_path.parent.mkdir(parents=True, exist_ok=True)
-                plt.savefig(str(output_path))
+    #         for matcher in matchers:
+    #             match_path = Path(f'dataset/robotcar/matches/robotcar_{seq}/matches-{feature}-{matcher}.h5')
+    #             feature_path = Path(f'dataset/robotcar/features/{feature}.h5')
+    #             precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+    #             plot_pr_curve(recall, precision, average_precision, f'{matcher}', f'{seq}')
+    #             _, r_recall = max_recall(precision, recall)
+    #             logger.info(f'\n' +
+    #                 f'Evaluation results: \n' +
+    #                 'Average Precision: {:.3f} \n'.format(average_precision) + 
+    #                 'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    #             output_path = Path(f'dataset/robotcar/exps/{seq}/{feature}-{matcher}/pr_curve.png')
+    #             if not output_path.parent.exists():
+    #                     output_path.parent.mkdir(parents=True, exist_ok=True)
+    #             plt.savefig(str(output_path))
     
     # for i in range(4):
     #     gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist_{i}.txt'
@@ -445,4 +445,49 @@ if __name__ == '__main__':
     #             output_path.parent.mkdir(parents=True, exist_ok=True)
     #     plt.savefig(str(output_path))
     #     plt.clf()
+    
+    # gt_file_path = 'dataset/tokyo247/pairs/pairs_from_retrieval_gt.txt'
+    # logger.info(f'evaluating {gt_file_path.split("/")[-1]}')
+    # features = ['sift', 'superpoint', 'disk']
+
+    # plt.clf()
+    # for feature in features:
+    #     if feature == 'sift':
+    #         matchers = ['NN']
+    #     if feature == 'superpoint':
+    #         matchers = ['superglue', 'NN']
+    #     if feature == 'disk':
+    #         matchers = ['lightglue']
+        
+    #     for matcher in matchers:
+    #         match_path = Path(f'dataset/tokyo247/matches/matches-{feature}-{matcher}.h5')
+    #         feature_path = Path(f'dataset/tokyo247/features/{feature}.h5')
+    #         precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+    #         plot_pr_curve(recall, precision, average_precision, f'{matcher}', 'Tokyo247')
+    #         _, r_recall = max_recall(precision, recall)
+    #         logger.info(f'\n' +
+    #             f'Evaluation results: \n' +
+    #             'Average Precision: {:.3f} \n'.format(average_precision) + 
+    #             'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    #         output_path = Path(f'dataset/tokyo247/exps/{feature}-{matcher}/pr_curve.png')
+    #         if not output_path.parent.exists():
+    #                 output_path.parent.mkdir(parents=True, exist_ok=True)
+    #         plt.savefig(str(output_path))
+        
+    gt_file_path = 'dataset/tokyo247/pairs/pairs_from_retrieval_gt.txt'
+    matcher = 'loftr'
+    match_path = Path(f'dataset/tokyo247/matches/matches-{matcher}.h5')
+    feature_path = Path(f'dataset/tokyo247/features/loftr-kpts.h5')
+    precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+    plot_pr_curve(recall, precision, average_precision, f'{matcher}', 'Tokyo247')
+    _, r_recall = max_recall(precision, recall)
+    logger.info(f'\n' +
+        f'Evaluation results: \n' +
+        'Average Precision: {:.3f} \n'.format(average_precision) + 
+        'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    output_path = Path(f'dataset/tokyo247/exps/{matcher}/pr_curve.png')
+    if not output_path.parent.exists():
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(str(output_path))
+    
       

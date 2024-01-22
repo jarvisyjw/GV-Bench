@@ -38,7 +38,7 @@ def parse_pairs(gt: str, allow_label = False):
         if line.startswith('#'):
             continue
         else:
-            line = line.split(' ')
+            line = line.split(', ')
             query, reference, label = line
             if allow_label:
                 
@@ -48,6 +48,19 @@ def parse_pairs(gt: str, allow_label = False):
             else:
                 # query, reference = line
                 yield query, reference
+
+def parse_pairs_from_retrieval(pairs: str):
+    logger.info(f'Loading pairs from {pairs}')
+    
+    f = open(pairs, 'r')
+    for line in f.readlines():
+        line = line.strip('\n')
+        if line.startswith('#'):
+            continue
+        else:
+            line = line.split(' ')
+            query, reference = line
+            yield query, reference
 
 
 def write_pairs(file: str, pairs: list):

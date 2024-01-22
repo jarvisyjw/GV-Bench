@@ -9,7 +9,7 @@ from typing import Dict
 from hloc import extract_features, match_features, visualization, match_dense
 import multiprocessing, threading
 import h5py
-from .utils import gt_loader, load_gt, parse_pairs
+from .utils import gt_loader, load_gt, parse_pairs, parse_pairs_from_retrieval
 from . import logger
 
 
@@ -48,7 +48,7 @@ def match(export_dir: Path, matcher: str, pairs: Path, feature_path_q: Path, fea
       if not export_dir.exists():
             export_dir.mkdir(parents=True, exist_ok=True)
       
-      pairs_loader = parse_pairs(pairs)
+      pairs_loader = parse_pairs_from_retrieval(pairs)
       pairs = [(q, r) for q, r in pairs_loader]
       conf = match_features.confs[matcher]
       if feature_path_r is None:
@@ -162,9 +162,9 @@ if __name__ == '__main__':
       # for feature in features:
       #       extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
       
-      root_dir = Path('dataset/robotcar/')
+      root_dir = Path('dataset/tokyo247/')
       # features_path = Path('dataset/robotcar/features/superpoint.h5')
-      pairs_paths = [Path(root_dir, 'gt', 'robotcar_qAutumn_dbSnow.txt')]
+      pairs_paths = [Path(root_dir, 'pairs', 'pairs_from_retrieval.txt')]
       for feature in features:
             if feature == 'superpoint':
                   matchers = ['superglue', 'NN-superpoint']
