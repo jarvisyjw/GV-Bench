@@ -1,78 +1,133 @@
+from hloc.utils.base_model import BaseModel
 import cv2
 import torch
-from types import SimpleNamespace
-import glob
+from matplotlib import pyplot as plt
+import numpy as np
 from pathlib import Path
+import pprint
+from tqdm import tqdm
+import h5py
+
+
 from . import logger
+from . import data_loader
+from hloc.utils.io import list_h5_names
 
 
+class ORB(BaseModel):
+    
+    required_inputs = ['image']
 
-class ImageDataset(torch.utils.data.Dataset):
-    default_conf = {
-        'globs': ['*.jpg', '*.png', '*.jpeg', '*.JPG', '*.PNG'],
-        'grayscale': False,
-        'resize_max': None,
-        'resize_force': False,
-        'interpolation': 'cv2_area',  # pil_linear is more accurate but slower
-    }
+    def _init(self, conf):
+        self.orb = cv2.ORB_create(conf['options']['nfeatures'])
+        
+    def _forward(self, data):
+        image = data['image']
+      #   image_np = image.cpu().numpy()[0, 0]
+        # plt.imshow(image_np)
+        # plt.show()
+        # print(image_np.shape)
+        keypoints, descriptors = self.orb.detectAndCompute(image, None)
+        print(descriptors)
+        
+        kpts = [kpt.pt for kpt in keypoints]
+        print(kpts)
+        scores = [kpt.response for kpt in keypoints]
+        
+        keypoints = np.array(kpts)  # keep only x, y
+        scores = np.array(scores)
 
-    def __init__(self, root, conf, paths=None):
-        self.conf = conf = SimpleNamespace(**{**self.default_conf, **conf})
-        self.root = root
-
-        if paths is None:
-            paths = []
-            for g in conf.globs:
-                paths += glob.glob(
-                    (Path(root) / '**' / g).as_posix(), recursive=True)
-            if len(paths) == 0:
-                raise ValueError(f'Could not find any image in root: {root}.')
-            paths = sorted(set(paths))
-            self.names = [Path(p).relative_to(root).as_posix() for p in paths]
-            logger.info(f'Found {len(self.names)} images in root {root}.')
-        else:
-            if isinstance(paths, (Path, str)):
-                self.names = parse_image_lists(paths)
-            elif isinstance(paths, collections.Iterable):
-                self.names = [p.as_posix() if isinstance(p, Path) else p
-                              for p in paths]
-            else:
-                raise ValueError(f'Unknown format for path argument {paths}.')
-
-            for name in self.names:
-                if not (root / name).exists():
-                    raise ValueError(
-                        f'Image {name} does not exists in root: {root}.')
-
-    def __getitem__(self, idx):
-        name = self.names[idx]
-        image = read_image(self.root / name, self.conf.grayscale)
-        image = image.astype(np.float32)
-        size = image.shape[:2][::-1]
-
-        if self.conf.resize_max and (self.conf.resize_force
-                                     or max(size) > self.conf.resize_max):
-            scale = self.conf.resize_max / max(size)
-            size_new = tuple(int(round(x*scale)) for x in size)
-            image = resize_image(image, size_new, self.conf.interpolation)
-
-        if self.conf.grayscale:
-            image = image[None]
-        else:
-            image = image.transpose((2, 0, 1))  # HxWxC to CxHxW
-        image = image / 255.
-
-        data = {
-            'image': image,
-            'original_size': np.array(size),
+        return {
+            'keypoints': keypoints,
+            'scores': scores,
+            'descriptors': descriptors.T,
         }
-        return data
-
-    def __len__(self):
-        return len(self.names)
 
 
-orb = cv2.ORB_create(nfeatures=1000, scoreType=cv2.ORB_FAST_SCORE)
+def main(conf, image_dir: Path, 
+         export_dir: Path, 
+         feature_path: Path = None, 
+         overwrite: bool = False):
+      
+      logger.info('Extracting local features with configuration:'
+                f'\n{pprint.pformat(conf)}')
 
-queryKeypoints, queryDescriptors = orb.detectAndCompute(query_img_bw,None) 
-trainKeypoints, trainDescriptors = orb.detectAndCompute(train_img_bw,None) 
+      dataset = data_loader(image_dir, grayscal=True, resize_max=1600)
+      if feature_path is None:
+            feature_path = Path(export_dir, conf['output']+'.h5')
+      feature_path.parent.mkdir(exist_ok=True, parents=True)
+      skip_names = set(list_h5_names(feature_path)
+                        if feature_path.exists() and not overwrite else ())
+      dataset.names = [n for n in dataset.names if n not in skip_names]
+      if len(dataset.names) == 0:
+            logger.info('Skipping the extraction.')
+            return feature_path
+      
+      default_conf = {
+        'options': {
+            'nfeatures': 1000,
+            'scaleFactor': '1.2f',
+            'nlevels': 8,
+            'edgeThreshold': 31,
+            'firstLevel': 0,
+            'WTA_K': 2,
+            'scoreType': cv2.ORB_HARRIS_SCORE,
+            'patchSize': 31,
+            'fastThreshold': 20,
+        }
+    }
+      
+      extractor = ORB(default_conf)
+      
+    #   loader = torch.utils.data.dataloader(
+    #         dataset, num_workers=1, shuffle=False, pin_memory=True)
+    
+    loader = 
+    
+      
+      for idx, data in enumerate(tqdm(loader)):
+            name = dataset.names[idx]
+            print(data['image'])
+            pred = extractor({'image': data['image']})
+            pred = {k: v[0].cpu().numpy() for k, v in pred.items()}
+            logger.debug(f'pred: {pred}')
+
+            pred['image_size'] = original_size = data['original_size'][0].numpy()
+            
+            if 'keypoints' in pred:
+                  size = np.array(data['image'].shape[-2:][::-1])
+                  scales = (original_size / size).astype(np.float32)
+                  pred['keypoints'] = (pred['keypoints'] + .5) * scales[None] - .5
+                  # add keypoint uncertainties scaled to the original resolution
+            
+            with h5py.File(str(feature_path), 'a', libver='latest') as fd:
+                  try:
+                        if name in fd:
+                              del fd[name]
+                        grp = fd.create_group(name)
+                        for k, v in pred.items():
+                              grp.create_dataset(k, data=v)
+                  except OSError as error:
+                        if 'No space left on device' in error.args[0]:
+                              logger.error(
+                                    'Out of disk space: storing features on disk can take '
+                                    'significant space, did you enable the as_half flag?')
+                              del grp, fd[name]
+                  raise error
+      
+            del pred
+      
+      logger.info(f'Extracted {conf["output"]} to {feature_path}. DONE!')
+
+
+if __name__ == "__main__":
+      conf = {
+        'output': 'feats-orb',
+        'model': {
+            'name': 'orb'
+        },
+        'preprocessing': {
+            'grayscale': True,
+            'resize_max': 1600,
+            'normalization': True,}}
+      main(conf, Path('dataset/robotcar/images/'), Path('dataset/robotcar/features/'), Path('dataset/robotcar/features/orb.h5'))

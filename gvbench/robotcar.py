@@ -9,7 +9,7 @@ from typing import Dict
 from hloc import extract_features, match_features, visualization, match_dense
 import multiprocessing, threading
 import h5py
-from .utils import gt_loader, load_gt, parse_pairs
+from .utils import gt_loader, load_gt, parse_pairs, parse_pairs_from_retrieval
 from . import logger
 
 
@@ -151,40 +151,56 @@ if __name__ == '__main__':
       # match(matcher, pairs, Path(feature_path_q), Path(feature_path_r), Path(export_dir))
       # matchers = ['superpoint+lightglue', 'superglue', 'NN-superpoint']
       # args = parser()
-      
       '''
-      Extract Features
-      
-            root_dir = Path('dataset/robotcar/')
-            features = ['superpoint', 'sift', 'disk']
-            for feature in features:
-                  extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+            Crop Images
+                      
       '''
-      root_dir = Path('dataset/robotcar/')
-      features = ['superpoint', 'sift', 'disk']
-      for feature in features:
-            extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+      pairs_path= 'dataset/robotcar/pairs/qAutumn_dbRain.txt'
+      pairs_loader = parse_pairs_from_retrieval(pairs_path)
+      image_dir = 'dataset/robotcar/images/'
+      export_dir = 'dataset/robotcar/images/crop/'
+      
+      rain = [r for q, r in pairs_loader]
+      # print(rain)
+      
+      select_crop_images(rain, image_dir, export_dir, 10)
+      
+      
+      
+      # '''
+      # Extract Features
+      
+      #       root_dir = Path('dataset/robotcar/')
+      #       features = ['superpoint', 'sift', 'disk']
+      #       for feature in features:
+      #             extractor(feature, Path(root_dir, 'images'), Path(root_dir, 'features'))
+      # '''
+      # root_dir = Path('dataset/mapillary_sls/train_val/boston/')
+      # features = ['superpoint', 'sift', 'disk', 'netvlad']
+      # for feature in features:
+      #       extractor(feature, Path(root_dir), Path(root_dir, 'features'))
 
-      '''
-      Match Features
-      '''
       
-      logger.info(f'Matching Superpoint features')
+      # '''
+      # Match Features
+      # '''
+      
+      # logger.info(f'Matching Superpoint features')
       # matchers = ['superglue', 'NN-superpoint']
-      root_dir = Path('dataset/robotcar/gt')
-      features_path = Path('dataset/robotcar/features/superpoint.h5')
-      pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
-      for feature in features:
-            if feature == 'superpoint':
-                  matchers = ['superglue', 'NN-superpoint']
-            if feature == 'sift':
-                  matchers = ['NN-ratio']
-            if feature == 'disk':
-                  matchers = ['disk+lightglue']
-            for matcher in matchers:
-                  for pairs_path in pairs_paths:
-                        output_name = pairs_path.name.split('.')[0]
-                        match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
+      # root_dir = Path('dataset/mapillary_sls/train_val/boston/')
+      # features_path = Path('dataset/robotcar/features/superpoint.h5')
+      # pairs_paths = [Path(root_dir, 'robotcar_qAutumn_dbNight.txt'), Path(root_dir, 'robotcar_qAutumn_dbSuncloud.txt')]
+      # for feature in features:
+      #       if feature == 'superpoint':
+      #             matchers = ['superglue', 'NN-superpoint']
+      #       if feature == 'sift':
+      #             matchers = ['NN-ratio']
+      #       if feature == 'disk':
+      #             matchers = ['disk+lightglue']
+      #       for matcher in matchers:
+      #             for pairs_path in pairs_paths:
+      #                   output_name = pairs_path.name.split('.')[0]
+      #                   match(Path(root_dir, 'matches', output_name), matcher, pairs_path, features_path)
       
       
       # logger.info(f'Matching SIFT features') # TODO Add SIFT + lightglue
@@ -229,9 +245,9 @@ if __name__ == '__main__':
       # feature = 'superpoint'
       # image_dir = Path(root_dir, 'Autumn_val/crop/')
       # export_dir = Path(root_dir, 'Autumn_val/features/')
-      # # image_dir = root_dir + 'Suncloud_val/stereo/centre/'
-      # # export_dir = root_dir + 'Suncloud_val/crop/'
-      # # crop_images_multiprocess(image_dir, export_dir, 10)
+      # image_dir = root_dir + 'Suncloud_val/stereo/centre/'
+      # export_dir = root_dir + 'Suncloud_val/crop/'
+      # crop_images_multiprocess(image_dir, export_dir, 10)
       # # extractor_multiprocess(feature, image_dir, export_dir, 10)
       # extractor(feature, image_dir, export_dir)
       # gt = 'dataset/gt/robotcar_qAutumn_dbSuncloud.txt'

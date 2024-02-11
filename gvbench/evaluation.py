@@ -2,8 +2,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from sklearn.metrics import average_precision_score, precision_recall_curve, ConfusionMatrixDisplay
-from scipy.special import softmax
+from sklearn.metrics import average_precision_score, precision_recall_curve
 import h5py
 from typing import Tuple
 import cv2
@@ -13,6 +12,12 @@ import multiprocessing
 from . import logger
 from .utils import parse_pairs
 
+
+def inmask(x, y, mask):
+    if x > mask[0] and y > mask[1] and x < mask[2] and y < mask[3]:
+          return True
+    else:
+          return False
 
 def names_to_pair(name0, name1, separator='/'):
     return separator.join((name0.replace('/', '-'), name1.replace('/', '-')))
@@ -49,7 +54,6 @@ def get_keypoints(path: Path, name: str,
     if return_uncertainty:
         return p, uncertainty
     return p
-
 
 def get_matches(path: Path, name0: str, name1: str, out=None) -> Tuple[np.ndarray]:
     with h5py.File(str(path), 'r', libver='latest') as hfile:
@@ -141,6 +145,90 @@ def RANSACwithH(match_path: Path, feature_path: Path, name0: str, name1: str, fo
 
     return pointMap, inliers
 
+
+def RANSAC(name0: str, name1: str,
+           match_path: Path,
+           feature_path: Path, feature_path_r = None, 
+           type='F', 
+           mask = None, 
+           log_stream = None):
+    
+    matches, scores = get_matches(match_path, name0, name1)
+    
+    original_matches = len(matches)
+    matches = matches[scores > 0.5]
+    logger.debug(f'Found {len(matches)} matches between {name0} and {name1}.')
+    
+    if feature_path_r is None:
+            feature_path_r = feature_path
+            
+    kpts0 = get_keypoints(feature_path, name0)
+    kpts1 = get_keypoints(feature_path_r, name1)
+    
+    logger.debug(f'kp0: {len(kpts0)}, kp1: {len(kpts1)}')
+    
+    point_map = []
+    
+    if mask is not None:
+        logger.debug(f'Using mask: {mask}')
+        
+        for match in matches:
+            x1, y1, x2, y2 = kpts0[match[0]][0], kpts0[match[0]][1], kpts1[match[1]][0], kpts1[match[1]][1]
+            if inmask(x1, y1, mask) and inmask(x2, y2, mask):
+                continue
+            else:
+                point_map.append([x1, y1, x2, y2])
+    
+    else:
+        for match in matches:
+            x1, y1, x2, y2 = kpts0[match[0]][0], kpts0[match[0]][1], kpts1[match[1]][0], kpts1[match[1]][1]
+            point_map.append([x1, y1, x2, y2])
+    
+    pointMap = np.array(point_map, dtype=np.float32)
+            
+        
+    if type == 'F':
+        if pointMap.shape[0] < 8:
+            logger.warning(f'Not enough points to compute fundamental matrix')
+            return pointMap, np.empty((0, 4))
+        
+        logger.debug(f'solving Fundamental matrix...\n' + 
+                     f'{name0} and {name1}')
+        
+        F, inliers_idx = cv2.findFundamentalMat(pointMap[:, :2], pointMap[:, 2:], cv2.FM_RANSAC, 3.0)
+        
+        if F is None or inliers_idx is None:
+            logger.error(f'Failed to compute fundamental matrix')
+            return pointMap, np.empty((0, 4))
+
+        logger.debug(f'F: {F}, inliers_idx: {inliers_idx}')
+        
+        inliers = pointMap[inliers_idx.ravel() == 1]
+        logger.debug(f'original: {len(pointMap)}, inliers: {len(inliers)}')
+    
+    elif type == 'H':
+        if pointMap.shape[0] < 4:
+            logger.warning(f'Not enough points to compute homography')
+            return pointMap, np.empty((0, 4))
+        logger.debug(f'solving homography...\n' + 
+                     f'{name0} and {name1}')
+        
+        H, inliers_idx = cv2.findHomography(pointMap[:, :2], pointMap[:, 2:], cv2.RANSAC, 15.0)
+
+        if H is None or inliers_idx is None:
+            logger.warning(f'Failed to compute homography')
+            return pointMap, np.empty((0, 4))
+
+        logger.debug(f'H: {H}, inliers_idx: {inliers_idx}')
+        inliers = pointMap[inliers_idx.ravel() == 1]
+        logger.debug(f'original: {len(pointMap)}, inliers: {len(inliers)}')
+        
+    
+    if log_stream is not None:
+        log_stream.write(f'{name0} {name1} {original_matches} {len(matches)} {len(inliers)}\n')
+
+    return pointMap, inliers
+        
 
 def RANSACwithF(name0: str, name1: str, 
                 match_path: Path, 
@@ -379,21 +467,81 @@ def eval_from_path_multiprocess(num_process: int,
 
 if __name__ == '__main__':
     
-    gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt'
-    match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbNight/loftr.h5')
-    feature_path = Path('dataset/robotcar/features/loftr_kpts.h5')
-    precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
-    plot_pr_curve(recall, precision, average_precision, 'Day2Night', 'LoFTR')
-    _, r_recall = max_recall(precision, recall)
+    # seqs = ['qAutumn_dbNight', 'qAutumn_dbSuncloud']
+    # for seq in seqs:
+    #     gt_file_path = f'dataset/robotcar/gt/robotcar_{seq}.txt'
+    #     logger.info(f'evaluating {seq}')
+    #     # features = ['superpoint', 'sift']
+    #     features = ['loftr']
+    #     matchers = ['loftr']
 
-    logger.info(f'\n' +
+    #     plt.clf()
+    #     for feature in features:
+    #         # if feature == 'sift':
+    #         #     matchers = ['NN']
+    #         # if feature == 'superpoint':
+    #         #     matchers = ['superglue', 'NN']
+            
+    #         for matcher in matchers:
+    #             match_path = Path(f'dataset/robotcar/matches/robotcar_{seq}/matches-{matcher}.h5')
+    #             feature_path = Path(f'dataset/robotcar/features/{feature}.h5')
+    #             precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(5, gt_file_path, match_path, feature_path)
+    #             plot_pr_curve(recall, precision, average_precision, f'{matcher}', f'{seq}')
+    #             _, r_recall = max_recall(precision, recall)
+    #             logger.info(f'\n' +
+    #                 f'Evaluation results: \n' +
+    #                 'Average Precision: {:.3f} \n'.format(average_precision) + 
+    #                 'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
+    #             output_path = Path(f'dataset/robotcar/exps/{seq}/{matcher}/pr_curve.png')
+    #             if not output_path.parent.exists():
+    #                     output_path.parent.mkdir(parents=True, exist_ok=True)
+    #             plt.savefig(str(output_path))
+        # gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbNight.txt'
+        # # 0, 1, 2, 3, 4, 5
+        # # exps = ['sift+NN', 'superpoint+nn', 'superpoint+superglue', 'disk+NN', 'disk+lightglue', 'loftr']
+        # exps = ['0', '2', '4', '5']
+        # feature_dict = {'0': 'sift', '1': 'superpoint', '2': 'superpoint', '3': 'disk', '4': 'disk', '5': 'loftr'}
+        # exp_dict = {'0': 'sift+NN', '1': 'superpoint+nn', '2': 'superpoint+superglue', '3': 'disk+NN', '4': 'disk+lightglue', '5': 'loftr'}
+        # for exp in exps:
+        #     match_path = Path(f'dataset/robotcar/matches/robotcar_qAutumn_dbNight/{exp}.h5')
+        #     feature_path = Path(f'dataset/robotcar/features/{feature_dict[exp]}.h5')
+        #     precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+        #     plot_pr_curve(recall, precision, average_precision, f'{exp_dict[exp]}', 'Day2Night')
+        #     _, r_recall = max_recall(precision, recall)
+        #     logger.info(f'\n' +
+        #             f'Evaluation results: \n' +
+        #             'Average Precision: {:.5f} \n'.format(average_precision) + 
+        #             'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
+        # output_path = Path(f'dataset/robotcar/exps/qAutumn_dbNight/pr_curve.pdf')
+        # plt.savefig(str(output_path))
+        
+        gt_file_path = 'dataset/robotcar/gt/robotcar_qAutumn_dbRain_test.txt'
+        match_path = Path(f'dataset/robotcar/matches/qAutumn_dbRain/matches-loftr_rain_test.h5')
+        feature_path = Path(f'dataset/robotcar/matches/qAutumn_dbRain/feats_matches-loftr.h5')
+        precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+        plot_pr_curve(recall, precision, average_precision, f'Loftr', 'Suncloud2Rain')
+        _, r_recall = max_recall(precision, recall)
+        logger.info(f'\n' +
                 f'Evaluation results: \n' +
-                'Average Precision: {:.3f} \n'.format(average_precision) + 
-                'Maximum Recall @ 100% Precision: {:.3f} \n'.format(r_recall))
-    output_path = Path(f'dataset/robotcar/exps/qAutumn_dbNight/LoFTR/pr_curve.png')
-    if not output_path.parent.exists():
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(str(output_path))
+                'Average Precision: {:.5f} \n'.format(average_precision) + 
+                'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
+        output_path = Path(f'dataset/robotcar/exps/qAutumn_dbRain/loftr_origin.pdf')
+        plt.savefig(str(output_path))
+            
+        # match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbNight/matches-superglue_max.h5')
+        # feature_path = Path('dataset/robotcar/features/superpoint_max.h5')
+        # precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
+        # plot_pr_curve(recall, precision, average_precision, 'SP.+SG.', 'Day2Night')
+        # _, r_recall = max_recall(precision, recall)
+
+        # logger.info(f'\n' +
+        #             f'Evaluation results: \n' +
+        #             'Average Precision: {:.4f} \n'.format(average_precision) + 
+        #             'Maximum Recall @ 100% Precision: {:.4f} \n'.format(r_recall))
+        # output_path = Path(f'dataset/robotcar/exps/qAutumn_dbNight/superglue_max/pr_curve.pdf')
+        # if not output_path.parent.exists():
+        #         output_path.parent.mkdir(parents=True, exist_ok=True)
+        # plt.savefig(str(output_path))
     
     # for i in range(4):
     #     gt_file_path = f'dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist_{i}.txt'

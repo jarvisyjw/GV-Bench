@@ -54,7 +54,8 @@ python -m pip install -e .
     - [x] NN 
     - [ ] LightGlue
     - [x] SuperGlue
-  - [ ] LoFTR
+  - [x] LoFTR
+- TODO
   - [ ] Doppelgangers
   - [ ] GMS/COTR/Huang Xinghong's Method
 
@@ -65,7 +66,7 @@ python -m pip install -e .
   - [x] Post-processing the existing lists
     - [x] dist_{0:4}
   
-#### Oxford RobotCar Seasons V2
+<!-- #### Oxford RobotCar Seasons V2 -->
 
 ### Evaluation
 - [ ] SIFT + NN

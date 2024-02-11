@@ -11,8 +11,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from pathlib import Path
+from tqdm import tqdm
+# import cv2
+from .evaluation import RANSACwithF
+from .utils import RANSAC
 
+from hloc.utils.io import read_image, get_keypoints, get_matches
 from . import logger
+
+BLUE = (255, 0, 0)
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+WHILE = (255, 255, 255)
+
+
+def name_to_pair(name: str):
+    return name.strip('.jpg').replace('/', '-')
 
 
 def cm_RdGn(x):
@@ -187,30 +201,108 @@ def save_plot(path, **kw):
     plt.savefig(path, bbox_inches="tight", pad_inches=0, **kw)
     
 
-def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75):
+def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75, save_dir = None, label=None, ransac=True):
     logger.info(f'Plot matches of {image0} and {image1}')
     
-    matches, _ = get_matches(match_path, image0, image1)
+    matches, scores = get_matches(match_path, image0, image1)
+    # matches = matches[scores > 0.5]
     matches0 = matches[:,0]
     matches1 = matches[:,1]
 
     keypoint0 = get_keypoints(feature_path, image0)
     keypoint1 = get_keypoints(feature_path, image1)
-
+    
     kp_0 = keypoint0[matches0]
     kp_1 = keypoint1[matches1]
+    
+    if ransac:
+        # RANSAC
+        points, inliers = RANSAC(kp_0, kp_1)
+    else:
+        points = np.array([kp_0, kp_1])
+        inliers = points
+        
+        
+    logger.debug(f'Keypoints of {image0}: {keypoint0.shape[0]}')
+    logger.debug(f'Keypoints of {image1}: {keypoint1.shape[0]}')
+    logger.debug(f'Number of matches: {kp_0.shape[0]}')
+    
+    
+    if kp_0.shape[0] < 1 or kp_1.shape[0] < 1:
+        logger.warning(f'No matches found for {image0} and {image1}')
+        pass
+    
+    else:
 
-    image_0 = read_image(database_image / image0)
-    image_1 = read_image(database_image / image1)
+        image_0 = read_image(database_image / image0)
+        image_1 = read_image(database_image / image1)
 
-    plot_images([image_0, image_1], dpi=dpi)
-    plot_matches(kp_0, kp_1, a = 0.1)
-    add_text(0, image0)
-    add_text(1, image1)
-    # if save:
-    #     logger.info(f'Save image at {str(out)}')
-    #     if not out.exists():
-    #         out.parent.mkdir(parents=True, exist_ok=True)
-    #         save_plot(out)
-    #     else:
-    #         logger.info(f'Image already exists at {str(out)}')
+        plot_images([image_0, image_1], dpi=dpi)
+        
+        if len(points) == len(inliers):
+            color = [0,1,0]
+        else:
+            logger.debug(f'points: {len(points)}, inliers: {len(inliers)}')
+            logger.debug(f'{points}, {inliers}')
+            color = [[0,1,0] if i in inliers else [1,0,0] for i in points]
+            logger.debug(f'Color: {color}')
+        
+        logger.debug(f'color: {len(color)}')
+        plot_matches(points[:,:2], points[:,2:], ps=20, a = 0.1, color=color)
+        add_text(0, image0)
+        add_text(1, image1)
+        add_text(0, f'{len(inliers)} inliers, {len(points)} matches', pos=(0.1,0.01))
+        
+        if label is not None:
+            add_text(0, f'{label}', pos=(0.01,0.01))
+            
+        if save_dir is not None:
+            logger.info(f'Save image at {str(save_dir)}')
+            if isinstance(save_dir, str):
+                save_dir = Path(save_dir)
+            if not save_dir.exists():
+                save_dir.mkdir(parents=True, exist_ok=True)
+            save_plot(save_dir / f'{name_to_pair(image0)}-{name_to_pair(image1)}.jpg')
+        else:
+            plt.show()
+
+
+def visualize_FP(pairs_idx: np.ndarray, matches_path: Path, feature_path: Path, image_dir: str, save_dir: Path):
+    for pair in tqdm(pairs_idx):
+        query, reference = pair[0], pair[1]
+        plot_matches_from_pair(query, reference, matches_path, feature_path, image_dir, 75, save_dir)
+
+
+# def plot_demo(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75):
+#     logger.info(f'Plot matches of {image0} and {image1}')
+    
+#     matches, _ = get_matches(match_path, image0, image1)
+#     matches0 = matches[:,0]
+#     matches1 = matches[:,1]
+    
+#     keypoint0 = get_keypoints(feature_path, image0)
+#     keypoint1 = get_keypoints(feature_path, image1)
+
+#     kp_0 = keypoint0[matches0]
+#     kp_1 = keypoint1[matches1]
+
+#     image_0 = read_image(database_image / image0)
+#     image_1 = read_image(database_image / image1)
+    
+#     plot_images([image_0, image_1], dpi=dpi)
+    
+#     # draw lines
+#     for x1, y1, x2, y2 in zip(kp_0[:,0], kp_0[:,1], kp_1[:,0], kp_1[:,1]):
+#         point1 = (int(x1), int(y1))
+#         point2 = (int(x2 + image1.shape[1]), int(y2))
+#         color = BLUE
+
+#         cv2.line( plt.gcf(), point1, point2, color, 1)
+
+#     # Draw circles on top of the lines
+#     for x1, y1, x2, y2 in small_point_map:
+#         point1 = (int(x1), int(y1))
+#         point2 = (int(x2 + image1.shape[1]), int(y2))
+#         cv2.circle(matchImage, point1, 2, BLUE, 2)
+#         cv2.circle(matchImage, point2, 2, BLUE, 2)
+
