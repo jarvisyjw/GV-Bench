@@ -79,9 +79,9 @@ if __name__ == '__main__':
       
       # root_dir = Path('dataset/Nordland/')
       pairs_path = Path('dataset/robotcar/pairs/rain_test.txt')
-      feature_path = Path('dataset/robotcar/features/qAutumn_dbRain/disk.h5')
-      export_dir = Path('dataset/robotcar/matches/qAutumn_dbRain/matches-disk-lightglue.h5')
-      match_features.main(match_features.confs['disk+lightglue'], pairs_path, feature_path, matches=export_dir)
+      feature_path = Path('dataset/robotcar/features/qAutumn_dbRain/sift.h5')
+      export_dir = Path('dataset/robotcar/matches/qAutumn_dbRain/matches-sift-nn.h5')
+      match_features.main(match_features.confs['NN-ratio'], pairs_path, feature_path, matches=export_dir)
       
       # features_path = Path('dataset/mapillary_sls/train_val/boston/features/')
       # pairs_paths = [Path('dataset/mapillary_sls/pairs/boston_cosplace.txt'), Path('dataset/mapillary_sls/pairs/boston.txt')]

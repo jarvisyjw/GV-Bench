@@ -108,7 +108,7 @@ def calculate_distance(north1, east1, north2, east2):
     return distance
 
 def calculate_view(yaw1, yaw2):
-    return abs(yaw1-yaw2)/3.1415926*180
+    return abs(yaw1-yaw2)/3.1415926*180 if abs(yaw1-yaw2) < 3.1415926 else 360-abs(yaw1-yaw2)/3.1415926*180
 
 def find_closest(lst, x):
     """
@@ -332,9 +332,11 @@ def cal_two_frame_dis_yaw(query_dir, ref_dir, query_t, ref_t):
     ref_df_timestamps = ref_df["timestamp"].tolist()
 
     closest_q_mini_t = find_closest(query_df_timestamps, query_t)
+    logger.info(f"closest_q_mini_t: {closest_q_mini_t}")
     q_north, q_east, q_yaw = query_df[query_df["timestamp"]==closest_q_mini_t]["northing"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["easting"].item(), query_df[query_df["timestamp"]==closest_q_mini_t]["yaw"].item()
     # print(q_north, q_east)
     closest_ref_mini_t = find_closest(ref_df_timestamps, ref_t)
+    logger.info(f"closest_ref_mini_t: {closest_ref_mini_t}")
     ref_north, ref_east, ref_yaw = ref_df[ref_df["timestamp"]==closest_ref_mini_t]["northing"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["easting"].item(), ref_df[ref_df["timestamp"]==closest_ref_mini_t]["yaw"].item()
     dis = calculate_distance(q_north, q_east, ref_north, ref_east)
     view = calculate_view(q_yaw, ref_yaw)
@@ -352,11 +354,11 @@ def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
         # pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", label_t)
         # logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
         if (view < 40 and dis < 25):
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Rain_mini_val/{r_t}.jpg", 1)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Snow_mini_val/{r_t}.jpg", 1)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
         else:
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Rain_mini_val/{r_t}.jpg", 0)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Snow_mini_val/{r_t}.jpg", 0)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
     queue.put(gt)
@@ -555,11 +557,20 @@ if __name__ == '__main__':
     #     Path(pairs).parent.mkdir(parents=True)
     # write_to_pairs(gt, pairs)
     
+    # dist, view = cal_two_frame_dis_yaw('dataset/robotcar/Autumn_val', 'dataset/robotcar/Rain_val', 1418132618146885, 1416907425428961)
+    # print(dist, view)
     
-    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/pairs/rain_test.txt", "Autumn_val", "Rain_val", 20)
+    # print(calculate_distance(5735982.737154,620056.023765, 5735979.286606,620055.493677))
+    
+    # Autumn_mini_val/1418132618146885.jpg, Rain_mini_val/1416907425428961.jpg, 0'
+    
+    
+    
+    
+    gts, num_gts = gt_gen_multiprocess('dataset/robotcar/pairs/qAutumn_dbSnow.txt', "Autumn_val", "Snow_val", 22)
     # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
     # print(f'# of gts: {num_gts}')
-    write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbRain_test.txt", gts)
+    write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSnow_final.txt", gts)
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)

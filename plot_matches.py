@@ -12,8 +12,8 @@ def plot_pair(match_path: Path, feature_path: Path, image_path: Path, query: str
 if __name__ == "__main__":
       
       # input match_path, feature_path, image_path
-      match_path = Path('dataset/robotcar/matches/qAutumn_dbRain/matches-loftr_rain_test.h5')
-      feature_path = Path('dataset/robotcar/matches/qAutumn_dbRain/feats_matches-loftr.h5')
+      match_path = Path('dataset/robotcar/matches/qAutumn_dbRain/matches-superpoint-superglue.h5')
+      feature_path = Path('dataset/robotcar/features/qAutumn_dbRain/superpoint.h5')
       image_path = Path('dataset/robotcar/images')
       
       # for a single pair
@@ -31,7 +31,7 @@ if __name__ == "__main__":
       pairs = [(q,r,l) for q,r,l in pairs_loader]
       # # pairs = [(q,r) for q,r in pairs_loader]
       for q, r, l in tqdm(pairs, total = len(pairs)):
-            plot_pair(match_path, feature_path, image_path, q, r, l, save_dir= 'dataset/robotcar/viz/matches/qAutumn_dbRain/loftr')
+            plot_pair(match_path, feature_path, image_path, q, r, l, save_dir= 'dataset/robotcar/viz/matches/qAutumn_dbRain/sp_sg')
       # # q = 'Autumn_mini_val/1418132448920173.jpg'
       # # r = 'Night_mini_val/1418755603512034.jpg'
       #       plot_matches_from_pair(q, r, match_path, feature_path, image_path, save_dir= 'dataset/robotcar/viz/matches/qAutumn_dbRain/loftr', label=l)

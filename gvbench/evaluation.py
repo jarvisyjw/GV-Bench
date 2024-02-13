@@ -515,17 +515,17 @@ if __name__ == '__main__':
         # output_path = Path(f'dataset/robotcar/exps/qAutumn_dbNight/pr_curve.pdf')
         # plt.savefig(str(output_path))
         
-        gt_file_path = 'dataset/robotcar/gt/robotcar_qAutumn_dbRain_test.txt'
-        match_path = Path(f'dataset/robotcar/matches/qAutumn_dbRain/matches-loftr_rain_test.h5')
-        feature_path = Path(f'dataset/robotcar/matches/qAutumn_dbRain/feats_matches-loftr.h5')
+        gt_file_path = 'dataset/robotcar/gt/robotcar_qAutumn_dbSnow_final.txt'
+        match_path = Path(f'dataset/robotcar/matches/qAutumn_dbSnow/matches-disk-nn.h5')
+        feature_path = Path(f'dataset/robotcar/features/qAutumn_dbSnow/disk.h5')
         precision, recall, average_precision, inliers_list = eval_from_path_multiprocess(20, gt_file_path, match_path, feature_path)
-        plot_pr_curve(recall, precision, average_precision, f'Loftr', 'Suncloud2Rain')
+        plot_pr_curve(recall, precision, average_precision, f'disk-nn', 'Autumn2Snow')
         _, r_recall = max_recall(precision, recall)
         logger.info(f'\n' +
                 f'Evaluation results: \n' +
                 'Average Precision: {:.5f} \n'.format(average_precision) + 
                 'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
-        output_path = Path(f'dataset/robotcar/exps/qAutumn_dbRain/loftr_origin.pdf')
+        output_path = Path(f'dataset/robotcar/exps/qAutumn_dbSnow/disk-nn_final.pdf')
         plt.savefig(str(output_path))
             
         # match_path = Path('dataset/robotcar/matches/robotcar_qAutumn_dbNight/matches-superglue_max.h5')
