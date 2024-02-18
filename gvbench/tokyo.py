@@ -48,8 +48,8 @@ def cal_gt_utm(root_dir: str, frame0: str, frame1: str):
             return 0
 
 def main():
-      pairs_path = 'dataset/tokyo247/pairs/pairs_from_retrieval.txt'
-      output_path = 'dataset/tokyo247/pairs/pairs_from_retrieval_gt.txt'
+      pairs_path = 'dataset/tokyo247/pairs/cosplace.txt'
+      output_path = 'dataset/tokyo247/pairs/cosplace_gt.txt'
       root_dir = 'dataset/tokyo247/images/'
       pairs_loader = parse_pairs_from_retrieval(pairs_path)
       pairs = [(q,r) for q,r in pairs_loader]

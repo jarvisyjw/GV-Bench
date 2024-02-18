@@ -192,7 +192,7 @@ def save_plot(path, **kw):
     plt.savefig(path, bbox_inches="tight", pad_inches=0, **kw)
     
 
-def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75, save_dir = None):
+def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_path: Path, database_image: Path, dpi=75, save_dir = None, label = None):
     logger.info(f'Plot matches of {image0} and {image1}')
     
     matches, _ = get_matches(match_path, image0, image1)
@@ -212,6 +212,8 @@ def plot_matches_from_pair(image0: str, image1: str, match_path: Path, feature_p
     plot_matches(kp_0, kp_1, a = 0.1)
     add_text(0, image0)
     add_text(1, image1)
+    if label is not None:
+        add_text(0, f'This is a {label} pair', pos=(0.01,0.01))
     if save_dir is not None:
         logger.info(f'Save image at {str(save_dir)}')
         if isinstance(save_dir, str):

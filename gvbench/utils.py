@@ -19,7 +19,7 @@ def load_gt(gt: str):
         if line.startswith('#'):
             continue
         else:
-            line = line.split(', ')
+            line = line.split(' ')
             query, reference, label = line
             querys.append(query.split('/')[-1])
             references.append(reference.split('/')[-1])
@@ -38,7 +38,7 @@ def parse_pairs(gt: str, allow_label = False):
         if line.startswith('#'):
             continue
         else:
-            line = line.split(', ')
+            line = line.split(' ')
             query, reference, label = line
             if allow_label:
                 
