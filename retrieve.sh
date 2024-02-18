@@ -1,0 +1,2 @@
+# python -m hloc.pairs_from_retrieval --descriptors dataset/Nordland_RAS2020/features/cosplace.h5 --query_prefix Live --db_prefix Reference --output dataset/Nordland_RAS2020/cosplace_pairs_10.txt --num_matched 10
+python -m hloc.pairs_from_retrieval --descriptors dataset/uacampus/features/cosplace.h5 --query_prefix query --db_prefix database --output dataset/uacampus/cosplace_10.txt --num_matched 10

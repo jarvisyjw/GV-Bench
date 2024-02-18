@@ -12,7 +12,7 @@ from multiprocessing import Process, Queue
 import multiprocessing, threading
 
 
-from gvbench.utils import gt_loader, load_gt, parse_pairs, write_pairs
+from gvbench.utils import gt_loader, load_gt, parse_pairs, write_pairs, parse_pairs_from_retrieval
 from gvbench import logger
 
 os.environ['OPENCV_PYTHON_HIDE_WINDOW'] = 'true'
@@ -341,11 +341,11 @@ def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
         # pair = (f"Autumn_mini_val/{q_t}.jpg", f"Night_mini_val/{r_t}.jpg", label_t)
         # logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
         if (view < 40 and dis < 25):
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Sonw_mini_val/{r_t}.jpg", 1)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Snow_mini_val/{r_t}.jpg", 1)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
         else:
-            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Suncloud_mini_val/{r_t}.jpg", 0)
+            pair = (f"Autumn_mini_val/{q_t}.jpg", f"Snow_mini_val/{r_t}.jpg", 0)
             logger.debug(f"view:{view}, dist:{dis}, pair:{pair}")
             gt.append(pair)
     queue.put(gt)
@@ -354,7 +354,7 @@ def gt_gen(queue, pairs_timestamp, query_dataset_dir, ref_dataset_dir):
 def gt_gen_multiprocess(pairs, query_dataset, ref_dataset, output_dir, num_process=8):
     query_dataset_dir = f"dataset/robotcar/{query_dataset}"
     ref_dataset_dir = f"dataset/robotcar/{ref_dataset}"
-    pairs_loader = parse_pairs(pairs)
+    pairs_loader = parse_pairs_from_retrieval(pairs)
     pairs_timestamp = [(q.strip('.jpg').split('/')[-1], r.strip('.jpg').split('/')[-1]) for q, r in pairs_loader]
     
     gts = []
@@ -553,22 +553,22 @@ if __name__ == '__main__':
     # if not Path(pairs).parent.exists():
     #     Path(pairs).parent.mkdir(parents=True)
     # write_to_pairs(gt, pairs)
-    file = 'dataset/robotcar/gt/robotcar_qAutumn_dbSnow.txt'
-    file_out = 'dataset/robotcar/pairs/qAutumn_dbSnow.txt'
-    f = open(file, 'r')
-    fout = open(file_out, 'w')
-    for line in tqdm(f):
-        f_str = line.strip('\n').split(' ')
-        q, r, l = f_str
-        # r_name = f"Snow_mini_val/{r.split('/')[-1]}"
-        fout.write(f'{q} {r}\n')
+    # file = 'dataset/robotcar/gt/robotcar_qAutumn_dbSnow.txt'
+    # file_out = 'dataset/robotcar/pairs/qAutumn_dbSnow.txt'
+    # f = open(file, 'r')
+    # fout = open(file_out, 'w')
+    # for line in tqdm(f):
+    #     f_str = line.strip('\n').split(' ')
+    #     q, r, l = f_str
+    #     # r_name = f"Snow_mini_val/{r.split('/')[-1]}"
+    #     fout.write(f'{q} {r}\n')
         
     
     
-    # gts, num_gts = gt_gen_multiprocess("dataset/robotcar/pairs/qAutumn_dbSnow.txt", "Autumn_val", "Snow_val", "dataset/robotcar/gt", 20)
+    gts, num_gts = gt_gen_multiprocess("dataset/robotcar/pairs/qAutumn_dbSnow_20.txt", "Autumn_val", "Snow_val", "dataset/robotcar/gt", 20)
     # # # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", np.array(dist_1))
     # print(f'# of gts: {num_gts}')
-    # write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSnow.txt", gts)
+    write_pairs("dataset/robotcar/gt/robotcar_qAutumn_dbSnow_20.txt", gts)
     # import pdb; pdb.set_trace()
     # dist_list = concate_list(dist_1)
     # np.save("dataset/robotcar/gt/robotcar_qAutumn_dbSuncloud_dist.npy", dist_list)
