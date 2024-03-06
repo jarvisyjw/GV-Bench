@@ -1,8 +1,9 @@
 # GV-Bench: Benchmarking Local Feature Matching for Geometric Verification of Long-term Loop Closure Detection
 
 <!-- ![GV-Bench](./assets/figs/radar-chart.png ) -->
-
+<p align="center">
 <img src="./assets/figs/radar-chart.png" width="500" alt="Description">
+</p>
 
 ## Intro
 This repo contains the code of evaluation and dataset processing. [Hloc](https://github.com/cvg/Hierarchical-Localization) is our primary tool for extracting local features and matching features.
