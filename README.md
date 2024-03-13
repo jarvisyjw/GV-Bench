@@ -2,7 +2,7 @@
 
 <!-- ![GV-Bench](./assets/figs/radar-chart.png ) -->
 <p align="center">
-<img src="./assets/figs/radar-chart-images.png" width="500" alt="Description">
+<img src="./assets/figs/radar-images.png" width="500" alt="Description">
 </p>
 
 ## Intro
