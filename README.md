@@ -35,7 +35,7 @@ This repo contains the implementation of GV-Bench, aiming at providing a fair an
 - [ ] Release sequence version of benchmark
 
 
-## Usage
+<!-- ## Usage
 ### Installation
 - Install `conda`
   
@@ -45,7 +45,7 @@ cd GV-BENCH/
 conda create --name=gvbench python=3.8
 cd third_party/Hierarchical-Localization/
 python -m pip install -e .
-```
+``` -->
 
 
 ## Acknowledgement
