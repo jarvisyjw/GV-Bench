@@ -8,7 +8,7 @@
 <!-- ## Visualization of Image Matching -->
 
 ## Introduction
-(Under construction, full codes and results comming soon!)
+(Under construction, full codes and results comming soon!) Feel free to dorp me an email or leave an issue!
 
 This repo contains the implementation of GV-Bench, aiming at providing a fair and accessible benchmark for geometric verification. We employ three datasets Oxford Robotcar, Nordland, and UAcampus, containing appearance changes over long period. 
 
@@ -50,4 +50,5 @@ python -m pip install -e .
 
 ## Acknowledgement
 - This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
+- Contact: `jingwen.yu@connect.ust.hk`
 
