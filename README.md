@@ -5,13 +5,15 @@
 <img src="./assets/figs/radar-images.png" width="600" alt="Description">
 </p>
 
+<!-- ## Visualization of Image Matching -->
+
 ## Introduction
 (Under construction, full codes and results comming soon!)
 
 This repo contains the implementation of GV-Bench, aiming at providing a fair and accessible benchmark for geometric verification. We employ three datasets Oxford Robotcar, Nordland, and UAcampus, containing appearance changes over long period. 
 
 ## News
-- Releasing the visualization of [image matching](./assets/appendix.pdf) results.
+- Releasing the visualization of [image matching](./assets/appendix.pdf) results. [google drive link](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link)
 
 ## Release Timeline
 - [ ] Appendix for visualization
