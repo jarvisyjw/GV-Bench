@@ -5,10 +5,18 @@
 <img src="./assets/figs/radar-images.png" width="600" alt="Description">
 </p>
 
-## Intro
-This repo contains the implementation of GV-Bench, aiming at providing a fair and accessible benchmark for geometric verification.
+## Introduction
+(Under construction, full codes and results comming soon!)
 
-## Timeline
+This repo contains the implementation of GV-Bench, aiming at providing a fair and accessible benchmark for geometric verification. We employ three datasets Oxford Robotcar, Nordland, and UAcampus, containing appearance changes over long period. 
+
+## News
+- Releasing the visualization of [image matching](./assets/appendix.pdf) results.
+
+## Release Timeline
+- [ ] Appendix for visualization
+  - [x] Visualization of image matches
+  - [ ] Visualization of inliers' distirbution
 - [ ] Release benchmark sequences.
   - [ ] Day
   - [ ] Night-easy
@@ -18,6 +26,11 @@ This repo contains the implementation of GV-Bench, aiming at providing a fair an
 - [ ] Release Local feature extraction and matching implementation
 - [ ] Release evaluation tools
 - [ ] Release data analysis tools
+- [ ] Expansion to other verification methods
+  - [ ] Dopplergangers
+  - [ ] Semantics
+  - [ ] Keypoint topology
+- [ ] Release sequence version of benchmark
 
 
 ## Usage
@@ -34,5 +47,5 @@ python -m pip install -e .
 
 
 ## Acknowledgement
-- This work builds upon `hloc`, thanks for their amazing work.
+- This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
 
