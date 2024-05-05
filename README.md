@@ -23,18 +23,20 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 ## News
 - :rocket: Releasing the visualization of [image matching](./assets/appendix.pdf) results. ([google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link))
 
-- :rocket: :rocket: Releasing the benchmark (easy)! Checkout the image pairs from `dataset/release/pairs` and images from [google drive](https://drive.google.com/drive/folders/1E8m353fi3hv-gaytJuRPLhFeNLPWTak6?usp=sharing)
+- :rocket: :rocket: Releasing the benchmark (easy)! Checkout the image pairs from `dataset/release/pairs` and images from [google drive](https://drive.google.com/drive/folders/1E8m353fi3hv-gaytJuRPLhFeNLPWTak6?usp=sharing) 
+- :star: Benchmark usage is coming soon!
 
 ## Release Timeline
 - [ ] Appendix for visualization
   - [x] Visualization of image matches
   - [ ] Visualization of inliers' distirbution
 - [ ] Release benchmark sequences.
-  - [ ] Day
-  - [ ] Night-easy
-  - [ ] Night-hard
-  - [ ] Season-easy
-  - [ ] Season-hard
+  - [x] Benchmark-easy 
+    - [x] Day
+    - [x] Weather
+    - [x] Night-easy
+    - [x] Season-easy
+  - [ ] Benchmark-hard
 - [ ] Release Local feature extraction and matching implementation
 - [ ] Release evaluation tools
 - [ ] Release data analysis tools
