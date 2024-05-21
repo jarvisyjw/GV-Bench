@@ -47,6 +47,39 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 - [ ] Release sequence version of benchmark
 
 
+## Installation
+We use part of the HLoc code for feature extraction and matching.  
+```bash
+git clone && cd GV-Bench
+git submodule init
+git submodule update
+cd third_party/Hierarchival-Localization
+python -m pip install -e .
+```
+
+## Usage
+- Download the dataset sequences from [google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link) and put it under the `dataset/` folder.
+- Extract and match feature using hloc (Take SuperPoint and SuperGlue as an example).
+  - Extract features: SIFT, SuperPoint, and DISK
+    ```bash
+    python hloc_utils.py --extraction --image_path /path/to image/ --output_path /path/to/output
+    python hloc_utils.py --extraction --image_path dataset/images/ --output_path dataset/output/features/
+    ```
+  - Match features: SIFT-NN, SIFT-LightGlue, SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
+    ```bash
+    python hloc_utils.py --matching 
+    
+    
+    
+    ```
+  - Extract SuperPoint features on images.
+    ```bash
+    python gvbench_utils.py --image_path /path/to/image/folder/ --output_path /path/to/image/foler/ --feature superpoint_max #for example 
+    ```
+  - Match Superpoint features on image pairs
+    - We prepare pairs file for matching under `pairs/` foler.
+    - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs.
+
 <!-- ## Usage
 ### Installation
 - Install `conda`
