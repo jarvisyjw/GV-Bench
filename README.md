@@ -54,6 +54,7 @@ git clone && cd GV-Bench
 git submodule init
 git submodule update
 cd third_party/Hierarchival-Localization
+git checkout gvbench # this is a customized fork version
 python -m pip install -e .
 ```
 
@@ -62,21 +63,23 @@ python -m pip install -e .
 - Extract and match feature using hloc (Take SuperPoint and SuperGlue as an example).
   - Extract features: SIFT, SuperPoint, and DISK
     ```bash
-    python hloc_utils.py --extraction --image_path /path/to image/ --output_path /path/to/output
-    python hloc_utils.py --extraction --image_path dataset/images/ --output_path dataset/output/features/
+    python gvbench_utils.py --extraction --image_path /path/to image/ --output_path /path/to/output
+    python gvbench_utils.py --extraction --image_path dataset/images/ --output_path dataset/output/features/
     ```
-  - Match features: SIFT-NN, SIFT-LightGlue, SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
+  - Match features: SIFT-NN, SIFT-LightGlue (Not yet implemented), SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
     ```bash
-    python hloc_utils.py --matching 
-    
-    
-    
+    # all methods except LoFTR
+    python gvbench_utils.py --matching --pairs /path/to/pairs 
+                --features /path/to/feature/root/folder 
+                --output_path /path/to/matches/output
+
+    # LoFTR is different from above methods thus
+    python gvbench_utils.py --matching_loftr --pairs datasets/GV-Bench/release/gt/day.txt 
+            --features datasets/GV-Bench/release/features 
+            --output_path datasets/GV-Bench/release/matches
     ```
-  - Extract SuperPoint features on images.
-    ```bash
-    python gvbench_utils.py --image_path /path/to/image/folder/ --output_path /path/to/image/foler/ --feature superpoint_max #for example 
-    ```
-  - Match Superpoint features on image pairs
+  
+  - Image pairs files
     - We prepare pairs file for matching under `pairs/` foler.
     - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs.
 
