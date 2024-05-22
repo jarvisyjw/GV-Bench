@@ -41,7 +41,7 @@ def eval_single(args):
             args.pairs_file_path: str
             args.matches_path: str
             args.features: Path
-            args.output_path: Path      
+            args.output_path: Path
       '''
       # dataset
       logger.setLevel('INFO')
