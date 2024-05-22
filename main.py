@@ -107,7 +107,7 @@ def parser():
       parser.add_argument('--method', type=str)
       parser.add_argument('--image_list', type=str)
       parser.add_argument('--eval', action='store_true')
-      parser.add_argument('--eval_signle', action='store_true')
+      parser.add_argument('--eval_single', action='store_true')
       parser.add_argument('--plot', action='store_true')
       parser.add_argument('--gen_sequence', action='store_true')
       parser.add_argument('--interpolate_poses', action='store_true')
