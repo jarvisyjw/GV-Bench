@@ -85,16 +85,17 @@ def path2timestamp(path: str):
 
 class EvaluationDataset(Dataset):
       
-      def __init__(self, qImage_path: Path, rImage_path: Path, pairs_file: Path, image = False):
+      def __init__(self, pairs_file: Path, image = False, qImage_path = None, rImage_path = None):
                         
             self.qImage_path = qImage_path
             self.rImage_path = rImage_path
             self.image = image
             self.pairs = [(q,r,int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
             
-            
+      
       def __len__(self):
             return len(self.pairs)
+      
       
       def __getitem__(self, index):
             qName, rName, label = self.pairs[index]
