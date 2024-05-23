@@ -260,6 +260,10 @@ def Eval_MP(num_process: int,
             match_path: Path, 
             feature_path: Path, feature_path_r = None, 
             export_dir = None):
+      '''
+      TODO: Multiprocessing version of Eval, the acceleration is working now
+      
+      '''
       
       if feature_path_r is None:
             feature_path_r = feature_path
@@ -401,48 +405,68 @@ def eval_from_path_multiprocess(num_process: int,
       return precision, recall, average_precision, inliers_list
 
 
-def singlematch(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, output_path = None):
+def Eval(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, export_dir = None):
       '''
-      TODO: Implement single_match function
-      Now, retrieve from seqmatch result file
+      TODO: Implement Evaluation Function
+      
       '''
-      # Open the file
-      if output_path is not None:
-            if output_path.exists():
-                  logger.warning(f'{output_path} already exists. Jumping matching')
-                  return None
-            f = open(output_path, 'w')
-            f.write('qTimestamp rTimestamp lable num_matches\n')
+      
+      # pointMap: all the points, inliers: inliers
+      pointMaps = []
+      inliers_list = []
+      num_matches = []
+      labels = []
+      qImages = []
+      rImages = []
       
       # Iterate over dataset
       for idx, data in tqdm(enumerate(dataset), total=len(dataset)):
             # extract data
             qImage, rImage, label = data
-            # pointMaps = []
-            # inliers_list = []
+            
+            # DO RANSAC
             pointMap, inliers = RANSAC(qImage, rImage, matches_path, features, features_ref)
+            
+            pointMaps.append(pointMap)
+            inliers_list.append(inliers)
+            num_matches.append(len(inliers))
+            labels.append(label)
+            qImages.append(qImage)
+            rImages.append(rImage)
+            
 
-            # if output_path is not None:
-            #       pointMap, inliers = RANSAC(qImage, rImage, matches_path, features, features_ref, log_stream=f)
-            # else:
-            # pointMaps.append(pointMap)
-            # inliers_list.append(inliers)
-            original_matches = len(pointMap)
-            inlier_matches = len(inliers)
-            
-            # logger.debug(f'pointMaps: {pointMaps}')
-            logger.info(f'Inliers: {inlier_matches} out of {original_matches}')
-            
-            if output_path is not None:
-                  f.write(f'{qImage} {rImage} {label} {original_matches} {inlier_matches}\n')
+      num_matches = np.array(num_matches)
+      num_matches_norm = num_matches / max(num_matches)
+      average_precision = average_precision_score(labels, num_matches_norm)
+      precision, recall, TH = precision_recall_curve(labels, num_matches_norm)
       
-      # Finish Calculation
-      logger.info(f'Calculating Matches Done')
       
-      # Close the file
-      if output_path is not None:
-            f.close()
-            logger.info(f'Output written to {output_path}')
+      logger.info(f'Evaluation Done')
+      _, r_recall = max_recall(precision, recall)
+      
+      logger.info(f'\n' +
+            f'Evaluation results: \n' +
+            'Average Precision: {:.5f} \n'.format(average_precision) + 
+            'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
+      
+      
+      # save the result to npy
+      if export_dir is not None:
+            logger.info(f'Saving Exp results to {export_dir}')
+      
+            np.save(str(export_dir), {'prob': matches_pts_norm,
+                                      'qImages': qImages,
+                                      'rImages': rImages,
+                                      'gt': labels, 
+                                      'inliers': inliers_list,
+                                      'all_matches': pointMaps,
+                                      'precision': precision, 
+                                      'recall': recall, 
+                                      'TH': TH,
+                                      'average_precision': average_precision,
+                                      'Max Recall': r_recall})
+      
+      return precision, recall, average_precision
 
 
 def seqmatch(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, output_path = None):

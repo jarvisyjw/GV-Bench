@@ -1,6 +1,6 @@
 from utils import interpolate_poses, generate_sequence, plot_images, read_image, search, get_poses, plot_sequence, pre_dataset, logger
 from dataset import SeqPairsDataset, GVDataset, SeqDataset, EvaluationDataset
-from eval import seqmatch, calpr, plot_pr_curve, singlematch, max_recall, Eval_MP
+from eval import seqmatch, calpr, plot_pr_curve, Eval, max_recall, Eval_MP
 
 from pathlib import Path
 from argparse import ArgumentParser
@@ -44,14 +44,18 @@ def eval_single(args):
             args.output_path: Path
       '''
       # dataset
-      logger.setLevel('DEBUG')
-      logger.info('Start Evaluation in Single Image mode...')
+      logger.setLevel('INFO')
+      logger.info('Start Evaluation in Single Image Mode...')
       # All four sequences
       dataset = EvaluationDataset(pairs_file = args.pairs_file_path )
       # use multiple-process for acceleration
-      Eval_MP(10, dataset, Path(args.matches_path), 
+      Eval(dataset, Path(args.matches_path), 
               Path(args.features), 
               export_dir= Path(args.output_path, f'{Path(args.matches_path).stem}.npy'))
+
+      # Eval_MP(10, dataset, Path(args.matches_path), 
+      #         Path(args.features), 
+      #         export_dir= Path(args.output_path, f'{Path(args.matches_path).stem}.npy'))
 
 
 
