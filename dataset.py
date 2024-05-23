@@ -90,15 +90,17 @@ class EvaluationDataset(Dataset):
             self.qImage_path = qImage_path
             self.rImage_path = rImage_path
             self.image = image
-            self.pairs = [(q,r,int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
+            
+            self.pairs = [(q, r, int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
             
       
       def __len__(self):
             return len(self.pairs)
       
       
-      def __getitem__(self, index):
+      def __getitem__(self, index):            
             qName, rName, label = self.pairs[index]
+            
             if self.image:
                   return read_image(self.qImage_path / Path(qName).name ), read_image(self.rImage_path / Path(rName).name ), label
             else:

@@ -44,10 +44,10 @@ def eval_single(args):
             args.output_path: Path
       '''
       # dataset
-      logger.setLevel('INFO')
+      logger.setLevel('DEBUG')
       logger.info('Start Evaluation in Single Image mode...')
       # All four sequences
-      dataset = EvaluationDataset(pairs_file= args.pairs_file_path )
+      dataset = EvaluationDataset(pairs_file = args.pairs_file_path )
       # use multiple-process for acceleration
       Eval_MP(10, dataset, Path(args.matches_path), 
               Path(args.features), 
