@@ -120,7 +120,7 @@ def RANSAC(name0: str, name1: str,
 
     if type == 'F':
         if pointMap.shape[0] < 8:
-            logger.warning(f'Not enough points to compute fundamental matrix')
+            logger.debug(f'Not enough points to compute fundamental matrix')
             return pointMap, np.empty((0, 4))
             # return pointMap, pointMap
         
@@ -130,7 +130,7 @@ def RANSAC(name0: str, name1: str,
         F, inliers_idx = cv2.findFundamentalMat(pointMap[:, :2], pointMap[:, 2:], cv2.FM_RANSAC, 3.0)
         
         if F is None or inliers_idx is None:
-            logger.warning(f'Failed to compute fundamental matrix')
+            logger.debug(f'Failed to compute fundamental matrix')
             return pointMap, np.empty((0, 4))
             # return pointMap, pointMap
 
@@ -141,7 +141,7 @@ def RANSAC(name0: str, name1: str,
     
     elif type == 'H':
         if pointMap.shape[0] < 4:
-            logger.warning(f'Not enough points to compute homography')
+            logger.debug(f'Not enough points to compute homography')
             return pointMap, np.empty((0, 4))
         logger.debug(f'solving homography...\n' + 
                      f'{name0} and {name1}')
@@ -149,7 +149,7 @@ def RANSAC(name0: str, name1: str,
         H, inliers_idx = cv2.findHomography(pointMap[:, :2], pointMap[:, 2:], cv2.RANSAC, 15.0)
 
         if H is None or inliers_idx is None:
-            logger.warning(f'Failed to compute homography')
+            logger.debug(f'Failed to compute homography')
             return pointMap, np.empty((0, 4))
 
         logger.debug(f'H: {H}, inliers_idx: {inliers_idx}')
@@ -453,8 +453,8 @@ def Eval(dataset: Dataset, matches_path: Path, features: Path, features_ref = No
       # save the result to npy
       if export_dir is not None:
             logger.info(f'Saving Exp results to {export_dir}')
-      
-            np.save(str(export_dir), {'prob': matches_pts_norm,
+            
+            np.save(str(export_dir), {'prob': num_matches_norm,
                                       'qImages': qImages,
                                       'rImages': rImages,
                                       'gt': labels, 
