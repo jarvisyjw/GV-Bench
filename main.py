@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 import random
+import logging
 
 def append_df(df: pd.DataFrame, timestamps: list, seqs: list):
       assert len(timestamps) == len(seqs), "timestamps and seqs must have the same length"
@@ -43,11 +44,19 @@ def eval_single(args):
             args.features: Path
             args.output_path: Path
       '''
-      # dataset
+      # logger setup
+      # Create a file handler
+      file_handler = logging.FileHandler(f'{args.output_path}/{Path(args.matches_path).stem}.log')
+      file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+      file_handler.setFormatter(file_formatter)
+      file_handler.setLevel(logging.INFO)  # Set the desired log level for the file
+      # Add the file handler to the existing logger
+      logger.addHandler(file_handler)
       logger.setLevel('INFO')
+      
       logger.info('Start Evaluation in Single Image Mode...')
       # All four sequences
-      dataset = EvaluationDataset(pairs_file = args.pairs_file_path )
+      dataset = EvaluationDataset(pairs_file = args.pairs_file_path)
       # use multiple-process for acceleration
       Eval(dataset, Path(args.matches_path), 
               Path(args.features), 
