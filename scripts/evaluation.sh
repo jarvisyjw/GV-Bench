@@ -1,9 +1,9 @@
 #!/bin/bash
 cd ..
 
-seq='season'
+seq='weather'
 
-echo 'Evaluating single pair'
+echo 'Evaluating single pair on Sequence': $seq
 echo 'Evaluating the day sequence'
 
 echo 'SIFT-NN'
