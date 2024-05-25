@@ -1,7 +1,7 @@
 #!/bin/bash
 cd ..
 
-seq='weather'
+seq=$1
 
 echo 'Evaluating single pair on Sequence': $seq
 echo 'Evaluating the day sequence'

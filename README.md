@@ -60,40 +60,45 @@ python -m pip install -e .
 
 ## Usage
 - Download the dataset sequences from [google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link) and put it under the `dataset/` folder.
-- Extract and match feature using hloc (Take SuperPoint and SuperGlue as an example).
+- Extract and match feature using hloc.
   - Extract features: SIFT, SuperPoint, and DISK
     ```bash
+    cd third_party/Hierarchical-Localization
     python gvbench_utils.py --extraction --image_path /path/to image/ --output_path /path/to/output
     python gvbench_utils.py --extraction --image_path dataset/images/ --output_path dataset/output/features/
     ```
   - Match features: SIFT-NN, SIFT-LightGlue (Not yet implemented), SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
     ```bash
     # all methods except LoFTR
+    cd third_party/Hierarchical-Localization
     python gvbench_utils.py --matching --pairs /path/to/pairs 
                 --features /path/to/feature/root/folder 
                 --output_path /path/to/matches/output
 
     # LoFTR is different from above methods thus
+    cd third_party/Hierarchical-Localization
     python gvbench_utils.py --matching_loftr --pairs datasets/GV-Bench/release/gt/day.txt 
             --features datasets/GV-Bench/release/features 
             --output_path datasets/GV-Bench/release/matches
     ```
+  - We also provide the easy to run scripts
+    ```bash
+    cd third_party/Hierarchical-Localization
+    bash ./gvbench_utils
+    ```
   
   - Image pairs files
-    - We prepare pairs file for matching under `pairs/` foler.
-    - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs.
+    - We prepare pairs (GT) file for matching under `dataset/gt` foler.
+    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench`
+    <!-- - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs. -->
 
-<!-- ## Usage
-### Installation
-- Install `conda`
-  
-```bash
-git clone --recursive
-cd GV-BENCH/
-conda create --name=gvbench python=3.8
-cd third_party/Hierarchical-Localization/
-python -m pip install -e .
-``` -->
+- Evaluation
+  - We provide out-of-box scripts
+  ```bash
+  cd GV-Bench/scripts
+  bash ./evaluation <day> # run script with 
+  #sequence name: day, night, season, weather
+  ```
 
 
 ## Acknowledgement
