@@ -46,7 +46,7 @@ def eval_single(args):
       '''
       # logger setup
       # Create a file handler
-      file_handler = logging.FileHandler(f'{args.output_path}/{Path(args.matches_path).stem}.log')
+      file_handler = logging.FileHandler(Path(args.output_path, f'{Path(args.matches_path).stem}.log'))
       file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
       file_handler.setFormatter(file_formatter)
       file_handler.setLevel(logging.INFO)  # Set the desired log level for the file
