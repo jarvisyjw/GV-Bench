@@ -99,6 +99,28 @@ python -m pip install -e .
   bash ./evaluation <day> # run script with 
   #sequence name: day, night, season, weather
   ```
+  - Exp Results (Easy):
+  Max Recall @100 Precision (MR%)
+
+  | Method | Day    | Night  | Weather | Season |
+  | :----- | :----- | :----- | :-----  | :----- |
+  | SIFT+NN| 35.974 | 8.664  |  45.711 | 17.211 |
+  | SP.+NN | 53.523 | 15.055 |  53.940 | 20.919 |
+  | SP.+SG.| 48.267 | **30.609** |  **64.976** | **64.811** |
+  | DISK+NN| 58.029 | 24.484 |  27.428 | 1.091  |
+  |DISK+LG.| **60.989** | 25.040 |  44.399 | 28.616 |
+  | LoFTR  | 45.336 | 18.206 |  12.737 | 50.753 |
+
+  Average Precision (AP%)
+
+  | Method | Day    | Night  | Weather | Season |
+  | :----- | :----- | :----- | :-----  | :----- |
+  | SIFT+NN| 98.094 | 62.106 | 99.728  | 96.705 |
+  | SP+NN  | 99.315 | 86.819 | 99.803  | 99.399 |
+  | SP.+SG.| **99.634** | 95.969 | **99.908**  | **99.859** |
+  | DISK+NN| 97.367 | 51.723 | 99.717  | 90.104 |
+  |DISK+LG.| 99.656 | 81.447 | 99.876  | 99.356 |
+  | LoFTR  | 99.500 | **97.881** | 99.873  | 99.727 |
 
 
 ## Acknowledgement
