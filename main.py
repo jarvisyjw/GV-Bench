@@ -1,4 +1,4 @@
-from utils import parse_timestamps, interpolate_poses, generate_sequence, plot_images, read_image, search, get_poses, plot_sequence, pre_dataset, logger
+from utils import *
 from dataset import SeqPairsDataset, SeqDataset, EvaluationDataset
 from eval import seqmatch, calpr, plot_pr_curve, Eval, max_recall, Eval_MP
 
@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import random
 import logging
+from tqdm import tqdm
 
 def append_df(df: pd.DataFrame, timestamps: list, seqs: list):
       assert len(timestamps) == len(seqs), "timestamps and seqs must have the same length"
@@ -57,15 +58,38 @@ def eval_single(args):
       logger.info('Start Evaluation in Single Image Mode...')
       # All four sequences
       dataset = EvaluationDataset(pairs_file = args.pairs_file_path)
-      # use multiple-process for acceleration
+      # TODO: use multiple-process for acceleration
       Eval(dataset, Path(args.matches_path), 
               Path(args.features), 
               export_dir= Path(args.output_path, f'{Path(args.matches_path).stem}.npy'))
 
-      # Eval_MP(10, dataset, Path(args.matches_path), 
-      #         Path(args.features), 
-      #         export_dir= Path(args.output_path, f'{Path(args.matches_path).stem}.npy'))
 
+def crop_images(image_dir: str, export_dir: str, image_list = None):
+      
+      logger.info(f'Cropping images from {image_dir} and export to {export_dir}')
+      image_dir = Path(image_dir)
+      export_dir = Path(export_dir)
+      
+      if not export_dir.exists():
+            export_dir.mkdir(parents=True, exist_ok=True)
+      
+      if image_list is not None:
+            images = [image for image in image_dir.iterdir() if int(image.stem) in image_list]
+            
+            for image in tqdm(images, total= len(images)):
+                  image = crop_image(str(image))
+                  if not cv2.imwrite(str(export_dir / image.name), image):
+                        raise Exception("Could not write image {}".format(export_dir / image.name))
+                        
+      else:
+            images = [image for image in image_dir.iterdir()]
+            
+            for image_path in tqdm(images, total= len(images)):
+                  image = crop_image(str(image_path))
+                  if not cv2.imwrite(str(export_dir / image_path.name), image):
+                        raise Exception("Could not write image {}".format(export_dir / image_path.name))
+                  
+      logger.info(f'Cropped images from {image_dir} to {export_dir}. DONE!')
 
 
 def eval(args):
@@ -126,11 +150,31 @@ def parser():
       parser.add_argument('--gen_sequence', action='store_true')
       parser.add_argument('--interpolate_poses', action='store_true')
       parser.add_argument('--plot_sequence', action='store_true')
+      parser.add_argument('--crop_images', action='store_true')
       args = parser.parse_args()
       return args
 
 def main():
       args = parser()
+      # crop images
+      if args.crop_images:
+            '''Crop the car hood from the images
+            Args:
+                  args.image_path: Path
+                  args.output_path: Path
+            '''
+            assert args.image_path is not None, 'Image path must be provided'
+            assert args.output_path is not None, 'Output path must be provided'
+            
+            if args.image_list is not None:
+                  image_file = open(args.image_list, 'r')
+                  image_list = [int(image.strip()) for image in image_file.readlines() if not image.startswith('#')]
+                  crop_images(args.image_path, args.output_path, image_list=image_list)
+            
+            else:
+                  crop_images(args.image_path, args.output_path)
+      
+      
       # Evaluation mode
       if args.eval_single:
             logger.info('Evaluation Process Begins...')
@@ -185,15 +229,22 @@ def main():
       
       # Plot sequence
       if args.plot_sequence:
+            
             dataset = SeqDataset(Path(args.qImage_path), Path(args.rImage_path), Path(args.qSeq_file_path), 
                                  Path(args.rSeq_file_path), args.pairs_file_path)
+            
             if args.image_list is not None:
                   image_list = [int(image) for image in args.image_list.split(',')]
+                  
             else:
                   image_list = [random.randint(0, len(dataset)-1) for i in range(5)]
+                  
                   for image in image_list:
-                        qImages, rImages, label = dataset[image]
-                        plot_sequence([qImages, rImages], label=label)
+                        if dataset[image] is None:
+                              continue
+                        else:
+                              qImages, rImages, label = dataset[image]
+                              plot_sequence([qImages, rImages], label=label)
             
       
       '''

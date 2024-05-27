@@ -65,22 +65,28 @@ class SeqDataset(Dataset):
       
       def __getitem__(self, index):
             qTimestamp, rTimestamp, label = self.pairs[index]
+            
             qRow = self.qSeq_file[self.qSeq_file['timestamp'] == qTimestamp]
             rRow = self.rSeq_file[self.rSeq_file['timestamp'] == rTimestamp]
             
-            qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
-            rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
+            if qRow.empty or rRow.empty:
+                  
+                  return None
+            else:
+                  logger.info(f'qRow: {qRow}, rRow: {rRow}')
+                  qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
+                  rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
             
-            qImages = [read_image(self.qImages_path / f'{image}.jpg') for image in qSeq]
-            rImages = [read_image(self.rImages_path / f'{image}.jpg') for image in rSeq]
-            
-            return qImages, rImages, label
+                  qImages = [read_image(self.qImages_path / f'{image}.jpg') for image in qSeq]
+                  rImages = [read_image(self.rImages_path / f'{image}.jpg') for image in rSeq]
+                  
+                  return qImages, rImages, label
 
 
 def path2timestamp(path: str):
       if not isinstance(path, Path):
             path = Path(path)
-      return int(path.name.strip('.jpg'))
+      return int(path.stem)
 
 
 class EvaluationDataset(Dataset):

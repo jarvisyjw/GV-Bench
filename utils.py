@@ -19,7 +19,6 @@ from transform import se3_to_components
 from interpolate_poses import interpolate_ins_poses
 
 
-
 ### logger
 formatter = logging.Formatter(
     fmt='[%(asctime)s %(name)s %(levelname)s] %(message)s',
@@ -32,6 +31,15 @@ logger = logging.getLogger("GV-Bench")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
+
+
+### Crop images
+def crop_image(image_dir: str):
+    im = cv2.imread(image_dir, cv2.IMREAD_COLOR)
+    h, w , c = im.shape
+    im = im[:h-160, :, :]
+    return im
+
 
 ### Some of the functions are copied from hloc
 def read_image(path, grayscale=False):
