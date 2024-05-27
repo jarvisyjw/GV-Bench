@@ -180,6 +180,16 @@ def parse_pairs(file: Path, allow_label = False):
                   query, reference = line
                   yield query, reference
     f.close()
+
+
+def parse_timestamps(file: str):
+    with open(file, 'r') as f:
+        for line in f.readlines():
+            line = line.strip('\n')
+            if line.startswith('#'):
+                continue
+            else:
+                yield line
     
 
 def interpolate_poses(image_path: Path, gps_file: str, output: str):
@@ -204,6 +214,7 @@ def interpolate_poses(image_path: Path, gps_file: str, output: str):
 
     df = pd.DataFrame(dataframe, columns=['timestamp', 'x', 'y', 'z', 'roll', 'pitch', 'yaw'])
     df.to_csv(output, index=False)
+    
     return df
 
 
@@ -233,7 +244,6 @@ def dist_matrix(pose_file: str):
 
 def generate_sequence(poses_file: str, origin: list, length: int, output_file: str):
     # TODO: out of boundary check
-    # day0 not working
     # manually process now
     
     timestamps, poses = get_poses(poses_file)
@@ -241,7 +251,7 @@ def generate_sequence(poses_file: str, origin: list, length: int, output_file: s
     
     logger.debug(f'Max idx: {max(centers)}')
 
-    if max(centers) > len(timestamps):
+    if max(centers) >= len(timestamps):
         centers = [min(i, len(timestamps) - 1) for i in centers]
     
     if length%2 == 0:

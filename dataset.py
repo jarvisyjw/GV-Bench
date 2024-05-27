@@ -107,41 +107,41 @@ class EvaluationDataset(Dataset):
                   return qName, rName, label
 
 
-class GVDataset(Dataset):
-      '''
-      TODO: Implement the GVDataset class
-            For evaluation usage mainly,
-            Functions:
-            1. retrieve the image pairs for RANSAC candidate selection
-      '''
-      def __init__(self, qImage_path: Path, rImage_path: Path, pairs_file: Path):
+# class SingleImageDataset(Dataset):
+#       '''
+#       TODO: Implement the GVDataset class
+#             For evaluation usage mainly,
+#             Functions:
+#             1. retrieve the image pairs for RANSAC candidate selection
+#       '''
+#       def __init__(self, Timestamp_list: str, poses_list: Path, pairs_file: Path):
                         
-            self.qImage_path = qImage_path
-            self.rImage_path = rImage_path
-            # self.pairs = [(path2timestamp(q),path2timestamp(r),int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
-            self.pairs = [(q,r,int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
+#             self.qImage_path = qImage_path
+#             self.rImage_path = rImage_path
+#             # self.pairs = [(path2timestamp(q),path2timestamp(r),int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
+#             self.pairs = [(q,r,int(l)) for q, r, l in parse_pairs(pairs_file, allow_label=True)]
             
-      def __len__(self):
-            return len(self.pairs)
+#       def __len__(self):
+#             return len(self.pairs)
       
-      def __getitem__(self, index):
-            qTimestamp, rTimestamp, label = self.pairs[index]
-            # qRow = self.seq_file[self.seq_file['timestamp'] == qTimestamp]
-            # rRow = self.seq_file[self.seq_file['timestamp'] == rTimestamp]
+#       def __getitem__(self, index):
+#             qTimestamp, rTimestamp, label = self.pairs[index]
+#             # qRow = self.seq_file[self.seq_file['timestamp'] == qTimestamp]
+#             # rRow = self.seq_file[self.seq_file['timestamp'] == rTimestamp]
             
-            # qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
-            # rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
+#             # qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
+#             # rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
             
-            # qImages = [read_image(self.image_path / f'{image}.jpg') for image in qSeq]
-            # rImages = [read_image(self.image_path / f'{image}.jpg') for image in rSeq]
+#             # qImages = [read_image(self.image_path / f'{image}.jpg') for image in qSeq]
+#             # rImages = [read_image(self.image_path / f'{image}.jpg') for image in rSeq]
             
-            return qTimestamp.strip('.jpg').split('/')[-1], rTimestamp.strip('.jpg').split('/')[-1], label
-            # return f'{qTimestamp}.jpg', f'{rTimestamp}.jpg', label
+#             return qTimestamp.strip('.jpg').split('/')[-1], rTimestamp.strip('.jpg').split('/')[-1], label
+#             # return f'{qTimestamp}.jpg', f'{rTimestamp}.jpg', label
       
-      # def _path2timestamp(self, path: str):
-      #       if not isinstance(path, Path):
-      #             path = Path(path)
-      #       return int(path.name.strip('.jpg'))
+#       # def _path2timestamp(self, path: str):
+#       #       if not isinstance(path, Path):
+#       #             path = Path(path)
+#       #       return int(path.name.strip('.jpg'))
       
 
 def test():

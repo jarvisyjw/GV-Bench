@@ -1,5 +1,5 @@
-from utils import interpolate_poses, generate_sequence, plot_images, read_image, search, get_poses, plot_sequence, pre_dataset, logger
-from dataset import SeqPairsDataset, GVDataset, SeqDataset, EvaluationDataset
+from utils import parse_timestamps, interpolate_poses, generate_sequence, plot_images, read_image, search, get_poses, plot_sequence, pre_dataset, logger
+from dataset import SeqPairsDataset, SeqDataset, EvaluationDataset
 from eval import seqmatch, calpr, plot_pr_curve, Eval, max_recall, Eval_MP
 
 from pathlib import Path
@@ -98,6 +98,7 @@ def parser():
       parser = ArgumentParser()
       parser.add_argument('--poses_file', type=str)
       parser.add_argument('--image_path', type=Path)
+      parser.add_argument('--timestamp', type=str)
       parser.add_argument('--sequence_length', type=int)
       parser.add_argument('--gps_file', type=str)
       parser.add_argument('--output_file', type=str)
@@ -146,19 +147,39 @@ def main():
       
       # Generate sequence mode
       if args.gen_sequence:
+            '''Generate Sequence
+            Args:
+                  args.poses_file: str
+                  args.timestamp: str
+                  args.sequence_length: int
+                  args.output_file: str
+            return: None
+            '''
+            assert args.poses_file is not None, 'Poses file must be provided'
+            assert args.timestamp is not None, 'Timestamp must be provided'
+            assert args.sequence_length is not None, 'Sequence length must be provided'
+            assert args.output_file is not None, 'Output file must be provided'
+            # logger setup
             logger.setLevel('INFO')
             logger.info('Generating Sequence...')
-            dataset = GVDataset(Path(args.qImage_path), Path(args.rImage_path), args.pairs_file_path)
-            # for idx, data in enumerate(dataset):
-            #       qImages, rImages, label = data
-            #       print(qImages)
-            qImages_t = [int(data[0]) for idx, data in enumerate(dataset)]
-            _, q_error = generate_sequence(args.poses_file, qImages_t, int(args.sequence_length), args.output_file)
-            logger.info(f'Ambiguous Timestamps: {q_error}')
+            loader = parse_timestamps(args.timestamp)
+            Timestamp = [int(t) for t in loader] 
+            seqs, errors = generate_sequence(args.poses_file, Timestamp, int(args.sequence_length), args.output_file)
+            logger.info(f'Ambiguous Timestamps: {errors}')
             
       
       # Interpolate poses
       if args.interpolate_poses:
+            '''Interpolate Poses via robotcar SDK
+            Args:
+                  args.image_path: Path
+                  args.gps_file: str
+                  args.output_file: str
+            '''
+            
+            assert args.image_path is not None, 'Image path must be provided'
+            assert args.gps_file is not None, 'GPS file must be provided'
+            assert args.output_file is not None, 'Output file must be provided'
             interpolate_poses(args.image_path, args.gps_file, args.output_file)
       
       
