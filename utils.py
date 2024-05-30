@@ -161,6 +161,7 @@ def plot_sequence(images, figsize=(15, 10), dpi=100, pad=.5, show = True, label 
         # ax.imshow(image)
             ax[j].set_axis_off()
     fig.tight_layout(pad=pad)
+    
     if label is not None:
         fig.suptitle(f'This is a {label} pair.', fontsize=16)
     if show:
@@ -369,3 +370,26 @@ def pre_dataset(image_path: Path, sequence_file: str, dump_dir: Path):
             shutil.copyfile(Path(image_path, f'{image}.jpg'), Path(dump_dir, f'{image}.jpg'))
     
     logger.info(f'Dataset prepared at {dump_dir}')
+
+
+def rm_keypoints(keypoints: Path, name: str):
+    
+    with h5py.File(str(keypoints), 'a') as hfile:
+        if name in hfile:
+            del hfile[name]
+        else:
+            logger.warning(f'Key {name} not found in {keypoints}')
+
+# def gen_match_pairs(pairs_file: str, output_file: str):
+#     '''
+#     Generate matching pairs for the sequence
+#     '''
+#     with open(pairs_file, 'r') as f:
+#         pairs = f.readlines()
+    
+#     with open(output_file, 'w') as f:
+#         for pair in pairs:
+#             pair = pair.strip('\n').split(' ')
+#             f.write(f'{pair[0]}.jpg {pair[1]}.jpg\n')
+#     f.close()
+#     logger.info(f'Matching pairs generated at {output_file}')
