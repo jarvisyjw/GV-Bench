@@ -75,11 +75,10 @@ def crop_images(image_dir: str, export_dir: str, image_list = None):
       
       if image_list is not None:
             images = [image for image in image_dir.iterdir() if int(image.stem) in image_list]
-            
-            for image in tqdm(images, total= len(images)):
-                  image = crop_image(str(image))
-                  if not cv2.imwrite(str(export_dir / image.name), image):
-                        raise Exception("Could not write image {}".format(export_dir / image.name))
+            for image_path in tqdm(images, total= len(images)):
+                  image = crop_image(str(image_path))
+                  if not cv2.imwrite(str(export_dir / image_path.name), image):
+                        raise Exception("Could not write image {}".format(export_dir / image_path.name))
                         
       else:
             images = [image for image in image_dir.iterdir()]
@@ -93,29 +92,45 @@ def crop_images(image_dir: str, export_dir: str, image_list = None):
 
 
 def eval(args):
-      # dataset
-      logger.info('Loading Dataset...')
-      # dataset = GVDataset(Path(args.qImage_path), Path(args.rImage_path), args.pairs_file_path)
-      dataset = SeqPairsDataset(Path(args.qImage_path), args.rImage_path, args.qSeq_file_path, args.rSeq_file_path, args.pairs_file_path, seqL = 5)
-      matches_path = Path(args.matches_path)
-      features = Path(args.features)
-      features_ref = Path(args.features_ref)
-      ransac_output = Path(args.ransac_output)
-      # seq_match
-      # logger.info('Single Matching')
-      # singlematch(dataset, matches_path, features, features_ref, ransac_output)
-      # logger.info('Sequence Matching...')
-      seqmatch(dataset, matches_path, features, features_ref, ransac_output)
-      logger.info('Sequence Matching Done...')
-      logger.info('Calculating Precision and Recall...')
-      precision, recall, average_precision = calpr(ransac_output, args.output_path)
-      logger.info('Precision and Recall Calculation Done...')
-      _, r_recall = max_recall(precision, recall)
-      logger.info(f'\n' +
-            f'Evaluation results: \n' +
-            'Average Precision: {:.5f} \n'.format(average_precision) + 
-            'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
-      return None
+      '''Sequence Matching Evaluation
+
+      '''
+      '''
+      Compute the PR curve for matching with single images.
+      
+      Args:
+            args.output_path: Path
+            args.matches_path: Path
+            args.features: Path
+
+            args.qImage_path: Path
+            args.rImage_path: Path
+            args.qSeq_file_path: Path
+            args.rSeq_file_path: Path
+            args.pairs_file_path: Path
+      '''
+      
+      # logger setup
+      # Create a file handler
+      file_handler = logging.FileHandler(Path(args.output_path, f'{Path(args.matches_path).stem}.log'))
+      file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+      file_handler.setFormatter(file_formatter)
+      file_handler.setLevel(logging.INFO)  # Set the desired log level for the file
+      
+      # Add the file handler to the existing logger
+      logger.addHandler(file_handler)
+      logger.setLevel('INFO')
+      
+      logger.info('Start Evaluation in Sequence Matching Mode...')
+      # All four sequences
+      dataset = SeqPairsDataset(args.qImage_path, args.rImage_path, args.qSeq_file_path,
+                                args.rSeq_file_path, args.pairs_file_path, 5)
+      
+      # TODO: use multiple-process for acceleration
+      Eval(dataset, Path(args.matches_path),
+              Path(args.features),
+              export_dir= Path(args.output_path, f'{Path(args.matches_path).stem}.npy'), 
+              seq=True)
       
 
 def parser():
@@ -151,11 +166,53 @@ def parser():
       parser.add_argument('--interpolate_poses', action='store_true')
       parser.add_argument('--plot_sequence', action='store_true')
       parser.add_argument('--crop_images', action='store_true')
+      parser.add_argument('--pre_seq_dataset', action='store_true')
+      parser.add_argument('--gen_match_pairs', action='store_true')
       args = parser.parse_args()
       return args
 
 def main():
+      
       args = parser()
+      
+      # prepare sequence dataset
+      if args.pre_seq_dataset:
+            '''Prepare Dataset
+            Args:
+                  args.image_path
+                  args.output_path
+                  args.seq_file
+            '''
+            pre_dataset(Path(args.image_path), args.seq_file, Path(args.output_path))
+
+      
+      if args.gen_match_pairs:
+            '''Generate matching pairs
+            Args:
+                  args.qImage_path: Path
+                  args.rImage_path: Path
+                  args.qSeq_file_path: str
+                  args.rSeq_file_path: str
+                  args.pairs_file_path: str
+                  args.output_path: str
+            '''
+            assert args.qImage_path is not None, 'Query Image path must be provided'
+            assert args.rImage_path is not None, 'Reference Image path must be provided'
+            assert args.qSeq_file_path is not None, 'Query Sequence file path must be provided'
+            assert args.rSeq_file_path is not None, 'Reference Sequence file path must be provided'
+            assert args.pairs_file_path is not None, 'Pairs file path must be provided'
+            assert args.output_path is not None, 'Output path must be provided'
+
+            dataset = SeqPairsDataset(Path(args.qImage_path), Path(args.rImage_path), 
+                                      args.qSeq_file_path, args.rSeq_file_path, args.pairs_file_path, flag=True)
+            
+            with open(args.output_path, 'w') as f:
+                  for idx, (qImages, rImages) in tqdm(enumerate(dataset), total= len(dataset)):
+                        for qImage, rImage in zip(qImages, rImages):
+                              f.write(f'{qImage} {rImage}\n')
+            f.close()
+
+      
       # crop images
       if args.crop_images:
             '''Crop the car hood from the images
@@ -169,6 +226,7 @@ def main():
             if args.image_list is not None:
                   image_file = open(args.image_list, 'r')
                   image_list = [int(image.strip()) for image in image_file.readlines() if not image.startswith('#')]
+                  # print(image_list)
                   crop_images(args.image_path, args.output_path, image_list=image_list)
             
             else:
@@ -236,6 +294,8 @@ def main():
             if args.image_list is not None:
                   image_list = [int(image) for image in args.image_list.split(',')]
                   
+                  
+                  
             else:
                   image_list = [random.randint(0, len(dataset)-1) for i in range(5)]
                   
@@ -246,6 +306,8 @@ def main():
                               qImages, rImages, label = dataset[image]
                               plot_sequence([qImages, rImages], label=label)
             
+      
+      
       
       '''
       Prepare the dataset for the sequence
