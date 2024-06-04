@@ -37,8 +37,8 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
     - [x] Night-easy
     - [x] Season-easy
   - [ ] Benchmark-hard
-- [ ] Release Local feature extraction and matching implementation
-- [ ] Release evaluation tools
+- [x] Release Local feature extraction and matching implementation
+- [x] Release evaluation tools
 - [ ] Release data analysis tools
 - [ ] Expansion to other verification methods
   - [ ] Dopplergangers
@@ -122,7 +122,9 @@ python -m pip install -e .
   |DISK+LG.| 99.656 | 81.447 | 99.876  | 99.356 |
   | LoFTR  | 99.500 | **97.881** | 99.873  | 99.727 |
 
-
+- Visualization
+  - Demos are presented in `plot_data.ipynb`
+  
 ## Acknowledgement
 - This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
 - Contact: `jingwen.yu@connect.ust.hk`
