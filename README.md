@@ -37,8 +37,8 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
     - [x] Night-easy
     - [x] Season-easy
   - [ ] Benchmark-hard
-- [ ] Release Local feature extraction and matching implementation
-- [ ] Release evaluation tools
+- [x] Release Local feature extraction and matching implementation
+- [x] Release evaluation tools
 - [ ] Release data analysis tools
 - [ ] Expansion to other verification methods
   - [ ] Dopplergangers
@@ -80,8 +80,10 @@ python -m pip install -e .
     ```
   
   - Image pairs files
-    - We prepare pairs file for matching under `pairs/` foler.
-    - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs.
+    - We prepare pairs file for matching under `gt/` foler with data structure:
+      ```bash
+      image0 image1 1/0(label)
+      ```
 
 <!-- ## Usage
 ### Installation
