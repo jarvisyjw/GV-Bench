@@ -90,8 +90,7 @@ python -m pip install -e .
   
   - Image pairs files
     - We prepare pairs (GT) file for matching under `dataset/gt` foler.
-    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench`
-    <!-- - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs. -->
+    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench` 
 
 - Evaluation 
   - We provide out-of-box scripts
@@ -102,6 +101,21 @@ python -m pip install -e .
   ```
   - Exp Results (IROS-Version):
   
+  - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
+  ```python
+  np.save(str(export_dir), {'prob': num_matches_norm,
+                                    'qImages': qImages,
+                                    'rImages': rImages,
+                                    'gt': labels, 
+                                    'inliers': inliers_list,
+                                    'all_matches': pointMaps,
+                                    'precision': precision, 
+                                    'recall': recall, 
+                                    'TH': TH,
+                                    'average_precision': average_precision,
+                                    'Max Recall': r_recall})
+  ```
+  - Exp Results (Easy):
   Max Recall @100 Precision (MR%)
 
   | Method | Day    | Night  | Weather | Season |
@@ -123,6 +137,15 @@ python -m pip install -e .
   | DISK+NN| 97.367 | 51.723 | 99.725  | 99.037 |
   |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
   | LoFTR  | 99.500 | **97.881** | 99.874  | 97.881 |
+
+  - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
+    
+    Max Recall @100 Precision (MR%)
+
+  | Method | Day  | Night  | Weather | Season |
+  | :----- | :----- | :----- | :-----  | :----- |
+  | MR |35.465 |  1.991  |  |  |
+  | AP |97.056 | 60.759 |   |  |
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`
