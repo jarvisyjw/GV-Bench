@@ -10,7 +10,8 @@ from utils import parse_pairs, read_image, plot_sequence, logger
 
 class SeqPairsDataset(Dataset):
       def __init__(self, qImage_path: Path, rImage_path: Path, 
-                   qSeq_file_path: str, rSeq_file_path: str, pairs_file_path: str, seqL = 5):
+                   qSeq_file_path: str, rSeq_file_path: str, pairs_file_path: str, seqL = 5, flag=False):
+            # default sequence length is 5
             self.seqL = seqL
             
             self.qImages_path = qImage_path
@@ -21,7 +22,9 @@ class SeqPairsDataset(Dataset):
             self.qSeq_file = pd.read_csv(qSeq_file_path)
             self.rSeq_file = pd.read_csv(rSeq_file_path)
             
-            self.pairs = [(path2timestamp(q), path2timestamp(r), int(l)) for q, r, l in parse_pairs(pairs_file_path, allow_label=True)]
+            self.pairs = [(q, r, int(l)) for q, r, l in parse_pairs(pairs_file_path, allow_label=True)]
+            self.flag = flag
+            # self.pairs = [(path2timestamp(q), path2timestamp(r), int(l)) for q, r, l in parse_pairs(pairs_file_path, allow_label=True)]
       
       
       def __len__(self):
@@ -29,19 +32,26 @@ class SeqPairsDataset(Dataset):
       
       
       def __getitem__(self, index):
-            qTimestamp, rTimestamp, label = self.pairs[index]
+            q, r, label = self.pairs[index]
+            
+            qTimestamp = path2timestamp(q)
+            rTimestamp = path2timestamp(r)
+            
             qRow = self.qSeq_file[self.qSeq_file['timestamp'] == qTimestamp]
             rRow = self.rSeq_file[self.rSeq_file['timestamp'] == rTimestamp]
             
             qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
             rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
             
-            qImages = [f'{image}.jpg' for image in qSeq]
-            rImages = [f'{image}.jpg' for image in rSeq]
+            qImages = [f'{self.qImages_path.name}/{image}.jpg' for image in qSeq]
+            rImages = [f'{self.rImages_path.name}/{image}.jpg' for image in rSeq]
             
             pairs = list(itertools.product(qImages, rImages))
             
-            return f'{qTimestamp}.jpg', f'{rTimestamp}.jpg', pairs, label
+            if self.flag:
+                  return pairs, label
+            else:
+                  return q, r, pairs, label
             
             
 class SeqDataset(Dataset):
@@ -70,7 +80,6 @@ class SeqDataset(Dataset):
             rRow = self.rSeq_file[self.rSeq_file['timestamp'] == rTimestamp]
             
             if qRow.empty or rRow.empty:
-                  
                   return None
             else:
                   logger.info(f'qRow: {qRow}, rRow: {rRow}')
@@ -87,6 +96,42 @@ def path2timestamp(path: str):
       if not isinstance(path, Path):
             path = Path(path)
       return int(path.stem)
+
+
+class SeqEvaluationDataset(Dataset):
+      
+      def __init__(self, qSeq_file_path: str, rSeq_file_path: str, 
+                   pairs_file_path: str, seqL = 5):
+            
+            self.seqL = seqL
+            self.qSeq_file = pd.read_csv(qSeq_file_path)
+            self.rSeq_file = pd.read_csv(rSeq_file_path)
+            
+            self.pairs = [(path2timestamp(q), path2timestamp(r), int(l)) for q, r, l in parse_pairs(pairs_file_path, allow_label=True)]
+      
+      def __len__(self):
+            return len(self.pairs)
+      
+      
+      def __getitem__(self, index):
+            
+            qTimestamp, rTimestamp, label = self.pairs[index]
+            
+            qRow = self.qSeq_file[self.qSeq_file['timestamp'] == qTimestamp]
+            rRow = self.rSeq_file[self.rSeq_file['timestamp'] == rTimestamp]
+            
+            if qRow.empty or rRow.empty:
+                  
+                  return None
+            else:
+                  logger.info(f'qRow: {qRow}, rRow: {rRow}')
+                  qSeq = [qRow[f'{i}'].values[0] for i in range(self.seqL)]
+                  rSeq = [rRow[f'{i}'].values[0] for i in range(self.seqL)]
+            
+                  qImages = [read_image(self.qImages_path / f'{image}.jpg') for image in qSeq]
+                  rImages = [read_image(self.rImages_path / f'{image}.jpg') for image in rSeq]
+                  
+                  return qImages, rImages, label
 
 
 class EvaluationDataset(Dataset):
