@@ -1,4 +1,5 @@
 from utils import *
+from viz import *
 from dataset import SeqPairsDataset, SeqDataset, EvaluationDataset
 from eval import seqmatch, calpr, plot_pr_curve, Eval, max_recall, Eval_MP
 
@@ -155,6 +156,7 @@ def parser():
       parser.add_argument('--ransac_output', type=Path)
       parser.add_argument('--output_path', type=Path)
       parser.add_argument('--eval_output_path', type=Path)
+      parser.add_argument('--exp_log_path', type=Path)
       parser.add_argument('--plot_save', type=str)
       parser.add_argument('--exp_name', type=str)
       parser.add_argument('--method', type=str)
@@ -168,6 +170,7 @@ def parser():
       parser.add_argument('--crop_images', action='store_true')
       parser.add_argument('--pre_seq_dataset', action='store_true')
       parser.add_argument('--gen_match_pairs', action='store_true')
+      parser.add_argument('--plot_inliers_dist', action='store_true')
       args = parser.parse_args()
       return args
 
@@ -207,8 +210,9 @@ def main():
                                       args.qSeq_file_path, args.rSeq_file_path, args.pairs_file_path, flag=True)
             
             with open(args.output_path, 'w') as f:
-                  for idx, (qImages, rImages) in tqdm(enumerate(dataset), total= len(dataset)):
-                        for qImage, rImage in zip(qImages, rImages):
+                  for idx, (pairs, label) in tqdm(enumerate(dataset), total= len(dataset)):
+                        for pair in pairs:
+                              qImage, rImage = pair
                               f.write(f'{qImage} {rImage}\n')
             f.close()
 
@@ -307,6 +311,10 @@ def main():
                               plot_sequence([qImages, rImages], label=label)
             
       
+      # Plot inliers
+      if args.plot_inliers_dist:
+            
+            viz_inliers_distribution(args.exp_log_path)
       
       
       '''

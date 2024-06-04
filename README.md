@@ -144,6 +144,9 @@ python -m pip install -e .
   | MR |35.465 |  1.991  |  |  |
   | AP |97.056 | 60.759 |   |  |
 
+- Visualization
+  - Demos are presented in `plot_data.ipynb`
+  
 ## Acknowledgement
 - This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
 - Contact: `jingwen.yu@connect.ust.hk`

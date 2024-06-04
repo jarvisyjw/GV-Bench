@@ -405,68 +405,138 @@ def eval_from_path_multiprocess(num_process: int,
       return precision, recall, average_precision, inliers_list
 
 
-def Eval(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, export_dir = None):
+def Eval(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, export_dir = None, seq = False):
       '''
       TODO: Implement Evaluation Function
       
       '''
       
-      # pointMap: all the points, inliers: inliers
-      pointMaps = []
-      inliers_list = []
-      num_matches = []
-      labels = []
-      qImages = []
-      rImages = []
+      # Sequence Image
+      if seq:
+            # pointMap: all the points, inliers: inliers
+            pointMaps_all = []
+            inliers_list_all = []
+            num_matches_all = []
+            num_matches_sum = []
+            labels = []
+            qImages = []
+            rImages = []
       
-      # Iterate over dataset
-      for idx, data in tqdm(enumerate(dataset), total=len(dataset)):
-            # extract data
-            qImage, rImage, label = data
+            # Iterate over dataset
+            for idx, data in tqdm(enumerate(dataset), total=len(dataset)):
+                  # extract data
+                  q, r, pairs, label = data
+                  pointMaps = []
+                  inliers_list = []
+                  
+                  for pair in pairs:
+                        qImage, rImage = pair
+                        pointMap, inliers = RANSAC(qImage, rImage, matches_path, features, features_ref)
+                        pointMaps.append(pointMap)
+                        inliers_list.append(inliers)
+                  
+                  qImages.append(q)
+                  rImages.append(r)
+                  num_matches = np.array([len(inliers) for inliers in inliers_list])
+                  num_matches_all.append(num_matches)
+                  num_matches_sum.append(sum(num_matches))
+                  pointMaps_all.append(pointMaps)
+                  labels.append(label)
+                  inliers_list_all.append(inliers_list)
             
-            # DO RANSAC
-            pointMap, inliers = RANSAC(qImage, rImage, matches_path, features, features_ref)
+            # Finish Calculation
+            logger.info(f'Calculating Matches Done')
             
-            pointMaps.append(pointMap)
-            inliers_list.append(inliers)
-            num_matches.append(len(inliers))
-            labels.append(label)
-            qImages.append(qImage)
-            rImages.append(rImage)
+            num_matches_sum = np.array(num_matches_sum)
+            num_matches_norm = num_matches_sum / max(num_matches_sum)
             
+            average_precision = average_precision_score(labels, num_matches_norm)
+            precision, recall, TH = precision_recall_curve(labels, num_matches_norm)
+            
+            logger.info(f'Evaluation Done')
+            _, r_recall = max_recall(precision, recall)
+            
+            logger.info(f'\n' +
+                  f'Evaluation results: \n' +
+                  'Average Precision: {:.5f} \n'.format(average_precision) + 
+                  'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
+            
+            # save the result to npy
+            if export_dir is not None:
+                  logger.info(f'Saving Exp results to {export_dir}')
+                  
+                  np.save(str(export_dir), {'prob': num_matches_norm,
+                                          'qImages': qImages,
+                                          'rImages': rImages,
+                                          'gt': labels, 
+                                          'inliers': inliers_list,
+                                          'all_matches': pointMaps,
+                                          'precision': precision, 
+                                          'recall': recall, 
+                                          'TH': TH,
+                                          'average_precision': average_precision,
+                                          'Max Recall': r_recall})
+            
+            return precision, recall, average_precision
+      
+      # Single Image
+      else:
+            # pointMap: all the points, inliers: inliers
+            pointMaps = []
+            inliers_list = []
+            num_matches = []
+            labels = []
+            qImages = []
+            rImages = []
+            
+            # Iterate over dataset
+            for idx, data in tqdm(enumerate(dataset), total=len(dataset)):
+                  # extract data
+                  qImage, rImage, label = data
+                  
+                  # DO RANSAC
+                  pointMap, inliers = RANSAC(qImage, rImage, matches_path, features, features_ref)
+                  
+                  pointMaps.append(pointMap)
+                  inliers_list.append(inliers)
+                  num_matches.append(len(inliers))
+                  labels.append(label)
+                  qImages.append(qImage)
+                  rImages.append(rImage)
+                  
 
-      num_matches = np.array(num_matches)
-      num_matches_norm = num_matches / max(num_matches)
-      average_precision = average_precision_score(labels, num_matches_norm)
-      precision, recall, TH = precision_recall_curve(labels, num_matches_norm)
-      
-      
-      logger.info(f'Evaluation Done')
-      _, r_recall = max_recall(precision, recall)
-      
-      logger.info(f'\n' +
-            f'Evaluation results: \n' +
-            'Average Precision: {:.5f} \n'.format(average_precision) + 
-            'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
-      
-      
-      # save the result to npy
-      if export_dir is not None:
-            logger.info(f'Saving Exp results to {export_dir}')
+            num_matches = np.array(num_matches)
+            num_matches_norm = num_matches / max(num_matches)
+            average_precision = average_precision_score(labels, num_matches_norm)
+            precision, recall, TH = precision_recall_curve(labels, num_matches_norm)
             
-            np.save(str(export_dir), {'prob': num_matches_norm,
-                                      'qImages': qImages,
-                                      'rImages': rImages,
-                                      'gt': labels, 
-                                      'inliers': inliers_list,
-                                      'all_matches': pointMaps,
-                                      'precision': precision, 
-                                      'recall': recall, 
-                                      'TH': TH,
-                                      'average_precision': average_precision,
-                                      'Max Recall': r_recall})
-      
-      return precision, recall, average_precision
+            
+            logger.info(f'Evaluation Done')
+            _, r_recall = max_recall(precision, recall)
+            
+            logger.info(f'\n' +
+                  f'Evaluation results: \n' +
+                  'Average Precision: {:.5f} \n'.format(average_precision) + 
+                  'Maximum Recall @ 100% Precision: {:.5f} \n'.format(r_recall))
+            
+            
+            # save the result to npy
+            if export_dir is not None:
+                  logger.info(f'Saving Exp results to {export_dir}')
+                  
+                  np.save(str(export_dir), {'prob': num_matches_norm,
+                                          'qImages': qImages,
+                                          'rImages': rImages,
+                                          'gt': labels, 
+                                          'inliers': inliers_list,
+                                          'all_matches': pointMaps,
+                                          'precision': precision, 
+                                          'recall': recall, 
+                                          'TH': TH,
+                                          'average_precision': average_precision,
+                                          'Max Recall': r_recall})
+            
+            return precision, recall, average_precision
 
 
 def seqmatch(dataset: Dataset, matches_path: Path, features: Path, features_ref = None, output_path = None):
