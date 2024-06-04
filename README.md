@@ -18,15 +18,15 @@ This repo contains the implementation of GV-Bench, aiming at providing a fair an
 ## Release Timeline
 - [ ] Appendix for visualization
   - [x] Visualization of image matches
-  - [ ] Visualization of inliers' distirbution
-- [ ] Release benchmark sequences.
-  - [ ] Day
-  - [ ] Night-easy
+  - [x] Visualization of inliers' distirbution
+- [x] Release benchmark sequences.
+  - [x] Day
+  - [x] Night-easy
   - [ ] Night-hard
-  - [ ] Season-easy
-  - [ ] Season-hard
-- [ ] Release Local feature extraction and matching implementation
-- [ ] Release evaluation tools
+  - [x] Season-easy
+  - [x] Season-hard
+- [x] Release Local feature extraction and matching implementation
+- [x] Release evaluation tools
 - [ ] Release data analysis tools
 - [ ] Expansion to other verification methods
   - [ ] Dopplergangers
