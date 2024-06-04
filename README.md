@@ -27,7 +27,7 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 ## Release Timeline
 - [x] Appendix for visualization
   - [x] Visualization of image matches
-  - [x] Visualization of inliers' distirbution
+  - [x] Visualization of inliers' distirbution (SP.+SG.)
     <p align="center">
     <img src="./assets/figs/spsg-4seqs.png" width="500" alt="Description">
     </p>
@@ -144,8 +144,8 @@ python -m pip install -e .
 
   | Method | Day  | Night  | Weather | Season |
   | :----- | :----- | :----- | :-----  | :----- |
-  | MR |35.465 |  1.991  |  |  |
-  | AP |97.056 | 60.759 |   |  |
+  | MR |   |    |  |  |
+  | AP |   |  |   |  |
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`
