@@ -37,8 +37,8 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
     - [x] Night-easy
     - [x] Season-easy
   - [ ] Benchmark-hard
-- [ ] Release Local feature extraction and matching implementation
-- [ ] Release evaluation tools
+- [x] Release Local feature extraction and matching implementation
+- [x] Release evaluation tools
 - [ ] Release data analysis tools
 - [ ] Expansion to other verification methods
   - [ ] Dopplergangers
@@ -89,8 +89,7 @@ python -m pip install -e .
   
   - Image pairs files
     - We prepare pairs (GT) file for matching under `dataset/gt` foler.
-    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench`
-    <!-- - e.g. `day.txt` means single image pairs and `day_5.txt` means sequence image pairs. -->
+    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench` 
 
 - Evaluation
   - We provide out-of-box scripts
@@ -99,29 +98,51 @@ python -m pip install -e .
   bash ./evaluation <day> # run script with 
   #sequence name: day, night, season, weather
   ```
+  - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
+  ```python
+  np.save(str(export_dir), {'prob': num_matches_norm,
+                                    'qImages': qImages,
+                                    'rImages': rImages,
+                                    'gt': labels, 
+                                    'inliers': inliers_list,
+                                    'all_matches': pointMaps,
+                                    'precision': precision, 
+                                    'recall': recall, 
+                                    'TH': TH,
+                                    'average_precision': average_precision,
+                                    'Max Recall': r_recall})
+  ```
   - Exp Results (Easy):
   Max Recall @100 Precision (MR%)
 
   | Method | Day    | Night  | Weather | Season |
   | :----- | :----- | :----- | :-----  | :----- |
-  | SIFT+NN| 35.974 | 8.664  |  45.711 | 17.211 |
-  | SP.+NN | 53.523 | 15.055 |  53.940 | 20.919 |
-  | SP.+SG.| 48.267 | **30.609** |  **64.976** | **64.811** |
-  | DISK+NN| 58.029 | 24.484 |  27.428 | 1.091  |
-  |DISK+LG.| **60.989** | 25.040 |  44.399 | 28.616 |
-  | LoFTR  | 45.336 | 18.206 |  12.737 | 50.753 |
+  | SIFT+NN| 35.974 | 8.664  |  45.726 | 28.423 |
+  | SP.+NN | 53.523 | 15.055 |  55.025 | 47.835 |
+  | SP.+SG.| 48.267 | **30.609** |  **66.514** | **74.633** |
+  | DISK+NN| 58.029 | 24.484 |  27.842 | 28.629  |
+  |DISK+LG.| **60.989** | 25.040 |  36.886 | 72.419 |
+  | LoFTR  | 45.336 | 18.206 |  12.096 | 18.206 |
 
   Average Precision (AP%)
 
   | Method | Day    | Night  | Weather | Season |
   | :----- | :----- | :----- | :-----  | :----- |
-  | SIFT+NN| 98.094 | 62.106 | 99.728  | 96.705 |
-  | SP+NN  | 99.315 | 86.819 | 99.803  | 99.399 |
-  | SP.+SG.| **99.634** | 95.969 | **99.908**  | **99.859** |
-  | DISK+NN| 97.367 | 51.723 | 99.717  | 90.104 |
-  |DISK+LG.| 99.656 | 81.447 | 99.876  | 99.356 |
-  | LoFTR  | 99.500 | **97.881** | 99.873  | 99.727 |
+  | SIFT+NN| 98.094 | 62.106 | 99.727  | 98.869 |
+  | SP+NN  | 99.315 | 86.819 | 99.804  | 99.707 |
+  | SP.+SG.| **99.634** | 95.969 | **99.911**  | **99.907** |
+  | DISK+NN| 97.367 | 51.723 | 99.725  | 99.037 |
+  |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
+  | LoFTR  | 99.500 | **97.881** | 99.874  | 97.881 |
 
+  - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
+    
+    Max Recall @100 Precision (MR%)
+
+  | Method | Day  | Night  | Weather | Season |
+  | :----- | :----- | :----- | :-----  | :----- |
+  | MR |35.465 |  1.991  |  |  |
+  | AP |97.056 | 60.759 |   |  |
 
 ## Acknowledgement
 - This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.

@@ -380,6 +380,15 @@ def rm_keypoints(keypoints: Path, name: str):
         else:
             logger.warning(f'Key {name} not found in {keypoints}')
 
+
+def rm_matches(matches: Path, name0: str, name1: str):
+    with h5py.File(str(matches), 'a') as hfile:
+        pair, reverse = find_pair(hfile, name0, name1)
+        if pair in hfile:
+            del hfile[pair]
+        else:
+            logger.warning(f'Pair {pair} not found in {matches}')
+    
 # def gen_match_pairs(pairs_file: str, output_file: str):
 #     '''
 #     Generate matching pairs for the sequence
