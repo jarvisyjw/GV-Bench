@@ -37,7 +37,7 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
     - [x] Weather
     - [x] Night-easy
     - [x] Season-easy -->
-  - [ ] Benchmark-hard (For viewpoint variations.)
+  - [ ] Benchmark-hard (For sever viewpoint and conditional variations.)
 - [x] Release Local feature extraction and matching implementation
 - [x] Release evaluation tools
 - [x] Release data analysis tools
