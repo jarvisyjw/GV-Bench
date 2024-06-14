@@ -32,20 +32,20 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
     <img src="./assets/figs/spsg-4seqs.png" width="500" alt="Description">
     </p>
 - [ ] Release benchmark sequences.
-  - [x] Benchmark-easy 
-    - [x] Day
+  - [x] Benchmark-easy (Day, Night, Weather, Season) 
+    <!-- - [x] Day
     - [x] Weather
     - [x] Night-easy
-    - [x] Season-easy
-  - [ ] Benchmark-hard
+    - [x] Season-easy -->
+  - [ ] Benchmark-hard (For viewpoint variations.)
 - [x] Release Local feature extraction and matching implementation
 - [x] Release evaluation tools
-- [ ] Release data analysis tools
+- [x] Release data analysis tools
 - [ ] Expansion to other verification methods
-  - [ ] Dopplergangers
+  - [x] Dopplergangers
   - [ ] Semantics
   - [ ] Keypoint topology
-- [ ] Release sequence version of benchmark
+- [ ] Release sequence version of benchmark (TODO)
 
 
 ## Installation
@@ -101,51 +101,54 @@ python -m pip install -e .
   ```
   - Exp Results (IROS-Version):
   
-  - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
-  ```python
-  np.save(str(export_dir), {'prob': num_matches_norm,
-                                    'qImages': qImages,
-                                    'rImages': rImages,
-                                    'gt': labels, 
-                                    'inliers': inliers_list,
-                                    'all_matches': pointMaps,
-                                    'precision': precision, 
-                                    'recall': recall, 
-                                    'TH': TH,
-                                    'average_precision': average_precision,
-                                    'Max Recall': r_recall})
-  ```
-  - Exp Results (Easy):
-  Max Recall @100 Precision (MR%)
+    - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
 
-  | Method | Day    | Night  | Weather | Season |
-  | :----- | :----- | :----- | :-----  | :----- |
-  | SIFT+NN| 35.974 | 8.664  |  45.726 | 28.423 |
-  | SP.+NN | 53.523 | 15.055 |  55.025 | 47.835 |
-  | SP.+SG.| 48.267 | **30.609** |  **66.514** | **74.633** |
-  | DISK+NN| 58.029 | 24.484 |  27.842 | 28.629  |
-  |DISK+LG.| **60.989** | 25.040 |  36.886 | 72.419 |
-  | LoFTR  | 45.336 | 18.206 |  12.096 | 18.206 |
+    ```python
+    np.save(str(export_dir), {'prob': num_matches_norm,
+                                      'qImages': qImages,
+                                      'rImages': rImages,
+                                      'gt': labels, 
+                                      'inliers': inliers_list,
+                                      'all_matches': pointMaps,
+                                      'precision': precision, 
+                                      'recall': recall, 
+                                      'TH': TH,
+                                      'average_precision': average_precision,
+                                      'Max Recall': r_recall})
+    ```
 
-  Average Precision (AP%)
+    - Exp Results (Easy):
+  
+    Max Recall @100 Precision (MR%)
 
-  | Method | Day    | Night  | Weather | Season |
-  | :----- | :----- | :----- | :-----  | :----- |
-  | SIFT+NN| 98.094 | 62.106 | 99.727  | 98.869 |
-  | SP+NN  | 99.315 | 86.819 | 99.804  | 99.707 |
-  | SP.+SG.| **99.634** | 95.969 | **99.911**  | **99.907** |
-  | DISK+NN| 97.367 | 51.723 | 99.725  | 99.037 |
-  |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
-  | LoFTR  | 99.500 | **97.881** | 99.874  | 97.881 |
+    | Method | Day    | Night  | Weather | Season |
+    | :----- | :----- | :----- | :-----  | :----- |
+    | SIFT+NN| 35.974 | 8.664  |  45.726 | 28.423 |
+    | SP.+NN | 53.523 | 15.055 |  55.025 | 47.835 |
+    | SP.+SG.| 48.267 | **30.609** |  **66.514** | **74.633** |
+    | DISK+NN| 58.029 | 24.484 |  27.842 | 28.629  |
+    |DISK+LG.| **60.989** | 25.040 |  36.886 | 72.419 |
+    | LoFTR  | 45.336 | 18.206 |  12.096 | 18.206 |
 
-  - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
+    Average Precision (AP%)
+
+    | Method | Day    | Night  | Weather | Season |
+    | :----- | :----- | :----- | :-----  | :----- |
+    | SIFT+NN| 98.094 | 62.106 | 99.727  | 98.869 |
+    | SP+NN  | 99.315 | 86.819 | 99.804  | 99.707 |
+    | SP.+SG.| **99.634** | 95.969 | **99.911**  | **99.907** |
+    | DISK+NN| 97.367 | 51.723 | 99.725  | 99.037 |
+    |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
+    | LoFTR  | 99.500 | **97.881** | 99.874  | 97.881 |
+
+    - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
     
     Max Recall @100 Precision (MR%)
 
-  | Method | Day  | Night  | Weather | Season |
-  | :----- | :----- | :----- | :-----  | :----- |
-  | MR |   |    |  |  |
-  | AP |   |  |   |  |
+    | Method | Day    | Night  | Weather | Season |
+    | :----- | :----- | :----- | :-----  | :----- |
+    | MR     | 35.465 | 1.991  | 30.011  | 22.435 |
+    | AP     | 97.056 | 60.759 | 99.574  | 99.134 |
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`

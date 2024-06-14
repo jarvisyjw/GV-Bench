@@ -81,7 +81,9 @@ def RANSAC(name0: str, name1: str,
            feature_path: Path, feature_path_r = None, 
            type='F', 
            mask = None):
+      
     
+    logger.setLevel('INFO')
 #     matches, scores = get_matches(match_path, name0.split('/')[-1], name1.split('/')[-1])
     matches, scores = get_matches(match_path, name0, name1)
     original_matches = len(matches)

@@ -13,6 +13,7 @@ import cv2
 import shutil
 import h5py
 from typing import Tuple
+import math
 
 
 from transform import se3_to_components
@@ -227,7 +228,7 @@ def interpolate_poses(image_path: Path, gps_file: str, output: str):
     return df
 
 
-def get_poses(poses_file: str):
+def get_poses(poses_file: str, ts_list = None):
     poses = [np.zeros(6)]
     timestamps = [0]
     
@@ -243,12 +244,20 @@ def get_poses(poses_file: str):
             timestamps.append(timestamp)
             poses.append(xyzrpy)
     
-    return timestamps[1:], poses[1:]
+    if timestamps is not None:
+        idx = [timestamps.index(t) for t in ts_list]
+        poses = [poses[i] for i in idx]
+        timestamps = [timestamps[i] for i in idx]
+        
+        return timestamps, poses
+    
+    else:
+        
+        return timestamps[1:], poses[1:]
 
 
 def dist_matrix(pose_file: str):
     pass
-
 
 
 def generate_sequence(poses_file: str, origin: list, length: int, output_file: str):
@@ -389,16 +398,39 @@ def rm_matches(matches: Path, name0: str, name1: str):
         else:
             logger.warning(f'Pair {pair} not found in {matches}')
     
-# def gen_match_pairs(pairs_file: str, output_file: str):
-#     '''
-#     Generate matching pairs for the sequence
-#     '''
-#     with open(pairs_file, 'r') as f:
-#         pairs = f.readlines()
-    
-#     with open(output_file, 'w') as f:
-#         for pair in pairs:
-#             pair = pair.strip('\n').split(' ')
-#             f.write(f'{pair[0]}.jpg {pair[1]}.jpg\n')
-#     f.close()
-#     logger.info(f'Matching pairs generated at {output_file}')
+
+# compute distance between qPoses and rPoses
+def compute_distance(qPose, rPose):
+      def rpy_to_quaternion(rpy):
+            roll, pitch, yaw = rpy
+            cy = np.cos(yaw * 0.5)
+            sy = np.sin(yaw * 0.5)
+            cp = np.cos(pitch * 0.5)
+            sp = np.sin(pitch * 0.5)
+            cr = np.cos(roll * 0.5)
+            sr = np.sin(roll * 0.5)
+
+            q = [
+                  cy * cp * cr + sy * sp * sr,
+                  cy * cp * sr - sy * sp * cr,
+                  sy * cp * sr + cy * sp * cr,
+                  sy * cp * cr - cy * sp * sr
+            ]
+            return q
+      
+      def quaternion_angular_difference(q1, q2):
+            dot_product = np.dot(q1, q2)
+            # Ensure dot product is within bounds for acos
+            dot_product = np.clip(dot_product, -1.0, 1.0)
+            # Calculate the angle between the quaternions
+            angle = 2 * np.arccos(dot_product)
+            return angle
+      
+      q1 = rpy_to_quaternion(qPose[3:])
+      q2 = rpy_to_quaternion(rPose[3:])
+      
+      qPose = np.array(qPose)
+      rPose = np.array(rPose)
+      t = np.linalg.norm(qPose[:2] - rPose[:2])
+      r = quaternion_angular_difference(q1, q2)
+      return t, math.degrees(r)
