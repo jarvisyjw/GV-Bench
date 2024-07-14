@@ -85,7 +85,7 @@ python -m pip install -e .
   - We also provide the easy to run scripts
     ```bash
     cd third_party/Hierarchical-Localization
-    bash ./gvbench_utils
+    bash ./gvbench_utils.sh
     ```
   
   - Image pairs files
@@ -128,7 +128,7 @@ python -m pip install -e .
     | SP.+SG.| 48.267 | **30.609** |  **66.514** | **74.633** |
     | DISK+NN| 58.029 | 24.484 |  27.842 | 28.629  |
     |DISK+LG.| **60.989** | 25.040 |  36.886 | 72.419 |
-    | LoFTR  | 45.336 | 18.206 |  12.096 | 18.206 |
+    | LoFTR  | 45.336 | 18.206 |  12.096 | 45.598 |
 
     Average Precision (AP%)
 
@@ -139,7 +139,31 @@ python -m pip install -e .
     | SP.+SG.| **99.634** | 95.969 | **99.911**  | **99.907** |
     | DISK+NN| 97.367 | 51.723 | 99.725  | 99.037 |
     |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
-    | LoFTR  | 99.500 | **97.881** | 99.874  | 97.881 |
+    | LoFTR  | 99.500 | **97.881** | 99.874  | 99.874 |
+
+    - Exp Results (Hard):
+  
+    Max Recall @100 Precision (MR%)
+
+    | Method | Night  | Season  |
+    | :----- | :----- | :----- |
+    | SIFT+NN| 20.896 | 3.547  |  
+    | SP.+NN | 25.124 | 3.660 |  
+    | SP.+SG.| 39.303 | 6.250 |  
+    | DISK+NN| 18.905 | 7.151 |  
+    |DISK+LG.| 4.726 | 8.164 |  
+    | LoFTR  | 25.124 | 13.063 |  
+
+    Average Precision (AP%)
+
+    | Method | Night  | Season | 
+    | :----- | :----- | :----- | 
+    | SIFT+NN| 53.483 | 13.593 | 
+    | SP+NN  | 74.106 | 52.776 | 
+    | SP.+SG.| 85.353 | 71.141 | 
+    | DISK+NN| 62.744 | 17.844 |
+    |DISK+LG.| 78.626 | 63.831 | 
+    | LoFTR  | 80.948 | 81.109 | 
 
     - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
     
@@ -152,7 +176,7 @@ python -m pip install -e .
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`
-  
+
 ## Acknowledgement
 - This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
 - Contact: `jingwen.yu@connect.ust.hk`
