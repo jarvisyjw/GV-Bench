@@ -22,7 +22,8 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 - :rocket: Releasing the visualization of [image matching](./assets/appendix.pdf) results. ([google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link))
 
 - :rocket: :rocket: Releasing the benchmark (easy)! Checkout the image pairs from `dataset/release/pairs` and images from [google drive](https://drive.google.com/drive/folders/1E8m353fi3hv-gaytJuRPLhFeNLPWTak6?usp=sharing) 
-- :star: Benchmark usage is coming soon!
+- :star: Benchmark usage is released!
+- Paper's arxiv link. 
 
 ## Release Timeline
 - [x] Appendix for visualization
@@ -41,10 +42,10 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 - [x] Release Local feature extraction and matching implementation
 - [x] Release evaluation tools
 - [x] Release data analysis tools
-- [ ] Expansion to other verification methods
+- [ ] Expansion to other verification methods (TODO)
   - [x] Dopplergangers
-  - [ ] Semantics
-  - [ ] Keypoint topology
+  <!-- - [ ] Semantics
+  - [ ] Keypoint topology -->
 - [ ] Release sequence version of benchmark (TODO)
 
 
@@ -58,8 +59,67 @@ cd third_party/Hierarchival-Localization
 git checkout gvbench # this is a customized fork version
 python -m pip install -e .
 ```
+## Replicate Results in Exps
+We provide the [output results]() with the format shown below. You can use these results directly.
+```bash
+$seq_$feature_$match.log
+$seq_$feature_$match.npy # with following format
+```
+```python
+np.save(str(export_dir), {
+  'prob': num_matches_norm,
+  'qImages': qImages,
+  'rImages': rImages,
+  'gt': labels, 
+  'inliers': inliers_list,
+  'all_matches': pointMaps,
+  'precision': precision, 
+  'recall': recall, 
+  'TH': TH,
+  'average_precision': average_precision,
+  'Max Recall': r_recall
+  })
+```
+### Replicate from scratch
+To get standard feature detection and matching results, we proposed to use [hloc](https://github.com/cvg/Hierarchical-Localization).
 
-## Usage
+- Download the dataset sequences from [google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link) and put it under the `dataset/` folder.
+
+- Extract and match feature using hloc.
+  - Extract features: SIFT, SuperPoint, and DISK
+    ```bash
+    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --extraction 
+    ```
+  - Match features: SIFT-NN, SIFT-LightGlue (Not yet implemented), SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
+    ```bash
+    # all methods except LoFTR
+    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --matching
+
+    # LoFTR is different from above methods thus
+    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --matching_loftr
+    ```
+  <!-- - We also provide the easy to run scripts
+    ```bash
+    cd scripts/
+    bash evaluation.sh ${sequence_name}
+    ``` -->
+  - Image pairs files
+    - We prepare pairs (GT) file for matching under `dataset/gt` foler.
+    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench`
+
+- Evaluation
+  - We provide out-of-box scripts
+  
+  ```bash
+  cd GV-Bench/scripts
+  bash ./evaluation <day> # run script with 
+  #sequence name: day, night, night-hard, season, season-hard, weather
+  ```
+
+## Benchmark Usage
+- Using customized local features for geometric verification (GV).
+
+<!-- ## Usage
 - Download the dataset sequences from [google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link) and put it under the `dataset/` folder.
 - Extract and match feature using hloc.
   - Extract features: SIFT, SuperPoint, and DISK
@@ -115,8 +175,8 @@ python -m pip install -e .
                                       'TH': TH,
                                       'average_precision': average_precision,
                                       'Max Recall': r_recall})
-    ```
-
+    ``` -->
+<!-- 
     - Exp Results (Easy):
   
     Max Recall @100 Precision (MR%)
@@ -156,14 +216,14 @@ python -m pip install -e .
 
     Average Precision (AP%)
 
-    | Method | Night  | Season | 
-    | :----- | :----- | :----- | 
-    | SIFT+NN| 53.483 | 13.593 | 
-    | SP+NN  | 74.106 | 52.776 | 
-    | SP.+SG.| 85.353 | 71.141 | 
+    | Method | Night  | Season |
+    | :----- | :----- | :----- |
+    | SIFT+NN| 53.483 | 13.593 |
+    | SP+NN  | 74.106 | 52.776 |
+    | SP.+SG.| 85.353 | 71.141 |
     | DISK+NN| 62.744 | 17.844 |
-    |DISK+LG.| 78.626 | 63.831 | 
-    | LoFTR  | 80.948 | 81.109 | 
+    |DISK+LG.| 78.626 | 63.831 |
+    | LoFTR  | 80.948 | 81.109 |
 
     - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
     
@@ -172,7 +232,7 @@ python -m pip install -e .
     | Method | Day    | Night  | Weather | Season |
     | :----- | :----- | :----- | :-----  | :----- |
     | MR     | 35.465 | 1.991  | 30.011  | 22.435 |
-    | AP     | 97.056 | 60.759 | 99.574  | 99.134 |
+    | AP     | 97.056 | 60.759 | 99.574  | 99.134 | -->
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`
