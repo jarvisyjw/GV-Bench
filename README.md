@@ -18,8 +18,6 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 <img src="./assets/figs/inference_time_vs_MR-crop.png" width="300" alt="Description">
 </p>
 
-
-
 ## News
 - :rocket: Releasing the visualization of [image matching](./assets/appendix.pdf) results. ([google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link))
 
@@ -27,24 +25,27 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 - :star: Benchmark usage is coming soon!
 
 ## Release Timeline
-- [ ] Appendix for visualization
+- [x] Appendix for visualization
   - [x] Visualization of image matches
-  - [ ] Visualization of inliers' distirbution
+  - [x] Visualization of inliers' distirbution (SP.+SG.)
+    <p align="center">
+    <img src="./assets/figs/spsg-4seqs.png" width="500" alt="Description">
+    </p>
 - [ ] Release benchmark sequences.
-  - [x] Benchmark-easy 
-    - [x] Day
+  - [x] Benchmark-easy (Day, Night, Weather, Season) 
+    <!-- - [x] Day
     - [x] Weather
     - [x] Night-easy
-    - [x] Season-easy
-  - [ ] Benchmark-hard
+    - [x] Season-easy -->
+  - [ ] Benchmark-hard (For sever viewpoint and conditional variations.)
 - [x] Release Local feature extraction and matching implementation
 - [x] Release evaluation tools
-- [ ] Release data analysis tools
+- [x] Release data analysis tools
 - [ ] Expansion to other verification methods
-  - [ ] Dopplergangers
+  - [x] Dopplergangers
   - [ ] Semantics
   - [ ] Keypoint topology
-- [ ] Release sequence version of benchmark
+- [ ] Release sequence version of benchmark (TODO)
 
 
 ## Installation
@@ -91,29 +92,34 @@ python -m pip install -e .
     - We prepare pairs (GT) file for matching under `dataset/gt` foler.
     - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench` 
 
-- Evaluation
+- Evaluation 
   - We provide out-of-box scripts
   ```bash
   cd GV-Bench/scripts
   bash ./evaluation <day> # run script with 
   #sequence name: day, night, season, weather
   ```
-  - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
-  ```python
-  np.save(str(export_dir), {'prob': num_matches_norm,
-                                    'qImages': qImages,
-                                    'rImages': rImages,
-                                    'gt': labels, 
-                                    'inliers': inliers_list,
-                                    'all_matches': pointMaps,
-                                    'precision': precision, 
-                                    'recall': recall, 
-                                    'TH': TH,
-                                    'average_precision': average_precision,
-                                    'Max Recall': r_recall})
-  ```
-  - Exp Results (Easy):
-  Max Recall @100 Precision (MR%)
+  - Exp Results (IROS-Version):
+  
+    - The log files are automatically generated as `{exp}.log` and `{exp}.npy`
+
+    ```python
+    np.save(str(export_dir), {'prob': num_matches_norm,
+                                      'qImages': qImages,
+                                      'rImages': rImages,
+                                      'gt': labels, 
+                                      'inliers': inliers_list,
+                                      'all_matches': pointMaps,
+                                      'precision': precision, 
+                                      'recall': recall, 
+                                      'TH': TH,
+                                      'average_precision': average_precision,
+                                      'Max Recall': r_recall})
+    ```
+
+    - Exp Results (Easy):
+  
+    Max Recall @100 Precision (MR%)
 
   | Method | Day    | Night  | Weather | Season |
   | :----- | :----- | :----- | :-----  | :----- |
@@ -124,7 +130,7 @@ python -m pip install -e .
   |DISK+LG.| **60.989** | 25.040 |  36.886 | 72.419 |
   | LoFTR  | 45.336 | 18.206 |  12.096 | 45.598 |
 
-  Average Precision (AP%)
+    Average Precision (AP%)
 
   | Method | Day    | Night  | Weather | Season |
   | :----- | :----- | :----- | :-----  | :----- |
@@ -135,14 +141,14 @@ python -m pip install -e .
   |DISK+LG.| 99.656 | 81.447 | 99.875  | 99.864 |
   | LoFTR  | 99.500 | **97.881** | 99.874  | 99.874 |
 
-  - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
+    - Exp using pre-trained [doppelgangers](https://github.com/RuojinCai/doppelgangers)
     
     Max Recall @100 Precision (MR%)
 
-  | Method | Day  | Night  | Weather | Season |
-  | :----- | :----- | :----- | :-----  | :----- |
-  | MR |35.465 |  1.991  |  |  |
-  | AP |97.056 | 60.759 |   |  |
+    | Method | Day    | Night  | Weather | Season |
+    | :----- | :----- | :----- | :-----  | :----- |
+    | MR     | 35.465 | 1.991  | 30.011  | 22.435 |
+    | AP     | 97.056 | 60.759 | 99.574  | 99.134 |
 
 - Visualization
   - Demos are presented in `plot_data.ipynb`
