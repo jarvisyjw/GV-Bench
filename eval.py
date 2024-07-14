@@ -80,7 +80,9 @@ def RANSAC(name0: str, name1: str,
            match_path: Path,
            feature_path: Path, feature_path_r = None, 
            type='F', 
-           mask = None):
+           mask = None
+      #      mask = [565, 20, 603, 35]
+      ):
       
     
     logger.setLevel('INFO')
