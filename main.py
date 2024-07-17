@@ -1,7 +1,7 @@
 from utils import *
 from viz import *
 from dataset import SeqPairsDataset, SeqDataset, EvaluationDataset
-from eval import seqmatch, calpr, plot_pr_curve, Eval, max_recall, Eval_MP
+from eval import plot_pr_curve, Eval
 
 from pathlib import Path
 from argparse import ArgumentParser
