@@ -22,7 +22,7 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 - :star: Paper's arxiv link.
 - :tada: The paper is accepted by IROS 2024!
 - :rocket: Releasing the visualization of [image matching](./assets/appendix.pdf) results. ([google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link))
-- :rocket: Releasing the benchmark (easy)! Checkout the image pairs from `dataset/release/pairs` and images from [google drive](https://drive.google.com/drive/folders/1E8m353fi3hv-gaytJuRPLhFeNLPWTak6?usp=sharing)
+- :rocket: Releasing the benchmark (easy)! Checkout the image pairs from `dataset/gt` and images from [google drive](https://drive.google.com/drive/folders/1E8m353fi3hv-gaytJuRPLhFeNLPWTak6?usp=sharing)
 
 <!-- 
 ## Release Timeline
