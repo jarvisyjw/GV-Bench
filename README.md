@@ -1,6 +1,6 @@
 # GV-Bench: Benchmarking Local Feature Matching for Geometric Verification of Long-term Loop Closure Detection
 
-### [[Arxiv]](https://arxiv.org/abs/2407.11736) [[Project Page]](https://jarvisyjw.github.io/GV-Bench/)
+### [[Arxiv]](https://arxiv.org/abs/2407.11736) [[Project Page]](https://jarvisyjw.github.io/GV-Bench/) [[Intro in Chinese]](https://mp.weixin.qq.com/s/edUw7vLep0zmve0Uj3IzkQ)
 <!-- ![GV-Bench](./assets/figs/radar-chart.png ) -->
 <!-- <p align="center">
 <img src="./assets/figs/radar-final-iros.png" width="600" alt="Description">
