@@ -1,0 +1,15 @@
+extraction:
+  image_path: dataset/images
+  features: 
+  output_path: dataset/features
+matching:
+  pairs: dataset/gt/day.txt
+  feature: 
+  feature_path: dataset/features
+  output_path: dataset/matches
+  matcher: 
+matching_loftr:
+  pairs: dataset/gt/day.txt
+  image_path: dataset/images
+  matches: dataset/matches
+  features: dataset/features
