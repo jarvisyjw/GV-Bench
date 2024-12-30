@@ -2,7 +2,8 @@
 data:
   image_dir: dataset/images
   pairs_info: dataset/gt/day.txt
+  image_width: 512
+  image_height: 288
 
 # matchers you want to test
 matcher: [master]
-

@@ -4,7 +4,7 @@
 <!-- ![GV-Bench](./assets/figs/radar-chart.png ) -->
 <!-- <p align="center">
 <img src="./assets/figs/radar-final-iros.png" width="600" alt="Description">
-</p> -->
+</p>
 
 <!-- (Under construction, full codes and results comming soon!) Feel free to dorp me an email or leave an issue!
 
@@ -20,6 +20,8 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 </p> -->
 
 ## News
+- :star::star::star: Add support for [Image-matching-models](https://github.com/alexstoken/image-matching-models), which makes it easy for evaluating different image matching models on GV-Bench. Thanks for their excellent work!!!
+
 - :star: Paper is release on [arxiv](https://arxiv.org/abs/2407.11736).
 - :tada: The paper is accepted by IROS 2024!
 - :rocket: Releasing the visualization of [image matching](./assets/appendix.pdf) results. ([google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link))
@@ -52,7 +54,13 @@ We measure the runtime of six methods listed in Table I on NVIDIA GeForce RTX 30
 
 
 ## Installation
-We use part of the HLoc code for feature extraction and matching.  
+Please follow the installation of [image-matching-models](https://github.com/alexstoken/image-matching-models)
+```bash
+
+git clone --recursive https://github.com/jarvisyjw/GV-Bench.git
+```
+
+<!-- We use part of the HLoc code for feature extraction and matching.  
 ```bash
 git clone && cd GV-Bench
 git submodule init
@@ -60,13 +68,19 @@ git submodule update
 cd third_party/Hierarchival-Localization
 git checkout gvbench # this is a customized fork version
 python -m pip install -e .
-```
+``` -->
+
 ## Replicate Results in Exps
-We provide the [output results]() with the format shown below. You can use these results directly.
+
+`Note that we use fundamental matrix estimation for outlier reject and use default image resolution of 1024*640, which is different from the image-matching-model's processing. Therefore if you replicate the experiments using image-matching-models, you may get different results.`
+
+We provide the [output results](https://hkustconnect-my.sharepoint.com/:f:/g/personal/jyubt_connect_ust_hk/EkflAPp79spCviRK5EkSGVABrGncg-TfNV5I3ThXxzopLg?e=tu91Xn) with the format shown below. You can use these results directly.
+
 ```bash
 $seq_$feature_$match.log
 $seq_$feature_$match.npy # with following format
 ```
+
 ```python
 np.save(str(export_dir), {
   'prob': num_matches_norm,
@@ -82,49 +96,14 @@ np.save(str(export_dir), {
   'Max Recall': r_recall
   })
 ```
-### Replicate from scratch
-To get standard feature detection and matching results, we proposed to use [hloc](https://github.com/cvg/Hierarchical-Localization).
-
-- Download the dataset sequences from [google drive](https://drive.google.com/file/d/1145hQb812E0HaPGekdpD04bEbjuej4Lx/view?usp=drive_link) and put it under the `dataset/` folder.
-
-- Extract and match feature using hloc.
-  - Extract features: SIFT, SuperPoint, and DISK
-    ```bash
-    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --extraction 
-    ```
-  - Match features: SIFT-NN, SIFT-LightGlue (Not yet implemented), SuperPoint-NN, DISK-NN, SuperPoint-SuperGlue, SuperPoint-LightGlue, DISK-LightGlue, LoFTR
-    ```bash
-    # all methods except LoFTR
-    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --matching
-
-    # LoFTR is different from above methods thus
-    python third_party/Hierarchical-Localization/gvbench_utils.py config/${seq}.yaml --matching_loftr
-    ```
-  <!-- - We also provide the easy to run scripts
-    ```bash
-    cd scripts/
-    bash evaluation.sh ${sequence_name}
-    ``` -->
-  - Image pairs files
-    - We prepare pairs (GT) file for matching under `dataset/gt` foler.
-    - Make sure to use the fork hloc for feature extraction and matching `https://github.com/jarvisyjw/Hierarchical-Localization.git -b gvbench`
 
 - Evaluation
-  - We provide out-of-box scripts
-  
-  ```bash
-  cd GV-Bench/scripts
-  bash ./evaluation <day> # run script with 
-  #sequence name: day, night, weather, season, nordland, uacampus
-  ```
 
-- Visualization
-  - Demos are presented in `plot_data.ipynb`
 
 ## TODO
-- [ ] Enabling using customized local features for geometric verification (GV).
+- [x] Enabling using customized local features for geometric verification (GV).
 
 ## Acknowledgement
-- This work builds upon [hloc](https://github.com/cvg/Hierarchical-Localization), thanks for their amazing work.
+- This work thanks [hloc](https://github.com/cvg/Hierarchical-Localization), [image-matching-models](https://github.com/alexstoken/image-matching-models) for their amazing works.
 - Contact: `jingwen.yu@connect.ust.hk`
 
