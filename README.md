@@ -70,7 +70,12 @@ If you want to replicate the paper's result of IROS2024, please refer to [this](
   # bench sequence
   gvbench_seq = ImagePairDataset(config.data, transform=None) # load images
   labels = gvbench_seq.label # load labels
-  MODEL = YOUR_MODEL() # your image matching model
+  MODEL = YOUR_MODEL(max_num_keypoints=2048) # your image matching model
+  # if your method is two-stage image matching
+  # i.e. Step 1: Keypoints Extraction
+  #      Step 2: Keypoints matching
+  # We recommend you set a max_num_keypoints to 2048
+  # to be consistent with the image-matching-models default setup.
   scores = []
   for data in gvbench_seq:
     img0 = load_image(data['img0'], resize)
