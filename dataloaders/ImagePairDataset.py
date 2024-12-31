@@ -33,11 +33,17 @@ class ImagePairDataset(Dataset):
         # img1 = Image.open(os.path.join(self.root_dir, img1_path)).convert('RGB')
         # img2 = Image.open(os.path.join(self.root_dir, img2_path)).convert('RGB')
 
-        img1_path = os.path.join(self.root_dir, img1_path)
-        img2_path = os.path.join(self.root_dir, img2_path)
+        img1 = os.path.join(self.root_dir, img1_path)
+        img2 = os.path.join(self.root_dir, img2_path)
 
         if self.transform:
             img1 = self.transform(img1)
             img2 = self.transform(img2)
+            
+        data = {
+            'img0': img1,
+            'img1': img2,
+            'label': label
+        }
 
-        return img1_path, img2_path, label
+        return data
