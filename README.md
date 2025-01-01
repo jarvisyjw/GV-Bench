@@ -1,6 +1,8 @@
-# GV-Bench: Benchmarking Local Feature Matching for Geometric Verification of Long-term Loop Closure Detection
+# GV-Bench
 
-### [[Arxiv]](https://arxiv.org/abs/2407.11736) [[Project Page]](https://jarvisyjw.github.io/GV-Bench/) [[Intro in Chinese]](https://mp.weixin.qq.com/s/edUw7vLep0zmve0Uj3IzkQ)
+> <b>GV-Bench: Benchmarking Local Feature Matching for Geometric Verification of Long-term Loop Closure Detection</b> <br>
+> [Jingwen Yu](https://jingwenyust.github.io/), [Hanjing Ye](https://medlartea.github.io/), [Jianhao Jiao](https://gogojjh.github.io/), [Ping Tan](https://facultyprofiles.hkust.edu.hk/profiles.php?profile=ping-tan-pingtan), [Hong Zhang](https://faculty.sustech.edu.cn/?tagid=zhangh33&iscss=1&snapid=1&orderby=date&go=2&lang=en)<br>
+> 2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) [arXiv](https://arxiv.org/abs/2407.11736), [IEEEXplore](https://ieeexplore.ieee.org/abstract/document/10801481), [Project Page](https://jarvisyjw.github.io/GV-Bench/), [Blog Post (in Chinese)](https://mp.weixin.qq.com/s/edUw7vLep0zmve0Uj3IzkQ), [Video (Bilibili)](https://www.bilibili.com/video/BV1WD23YhEZw/?share_source=copy_web&vd_source=4db6a86d3347fa85196b3e77a6092d1a)
 
 <p align="center">
 <img src=".asset/radar-webpage.png" width="600" alt="Description">
