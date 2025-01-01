@@ -58,6 +58,11 @@ Now, we support using [image-matching-models](https://github.com/alexstoken/imag
 which enables many more state-of-the-art matching methods for Geometric Verification (GV). 
 The example usage:
 
+Show all supported geometric verification models
+```bash
+python main.py --help
+```
+
 ```bash
 python main.py config/day.yaml
 ```
