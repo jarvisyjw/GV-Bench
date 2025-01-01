@@ -20,9 +20,9 @@ import warnings
 def parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=str, help='Path to the config file')
-    parser.add_argument('support_model', type=str, help=f"All verification models: {available_models}")
+    parser.add_argument('--support_model', type=str, help=f"Show all verification models: {available_models}")
     args = parser.parse_args()
-      
+
     def dict2namespace(config):
         namespace = argparse.Namespace()
         for key, value in config.items():
