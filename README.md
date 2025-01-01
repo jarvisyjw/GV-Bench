@@ -93,3 +93,14 @@ If you want to replicate the paper's result of IROS2024, please refer to [this](
 - This work thanks [hloc](https://github.com/cvg/Hierarchical-Localization), [image-matching-models](https://github.com/alexstoken/image-matching-models) for their amazing works.
 - Contact: `jingwen.yu@connect.ust.hk`
 
+## Citation
+```
+@inproceedings{yu2024gv,
+  title={GV-Bench: Benchmarking Local Feature Matching for Geometric Verification of Long-term Loop Closure Detection},
+  author={Yu, Jingwen and Ye, Hanjing and Jiao, Jianhao and Tan, Ping and Zhang, Hong},
+  booktitle={2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages={7922--7928},
+  year={2024},
+  organization={IEEE}
+}
+```
