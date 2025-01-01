@@ -7,7 +7,7 @@
 </p>
 
 ## Abstract
-Visual loop closure detection is an important module in visual simultaneous localization and mapping (SLAM), which associates current camera observation with previously visited places. Loop closures correct drifts in trajectory estimation to build a globally consistent map. However, a false loop closure can be fatal, so verification is required as an additional step to ensure robustness by rejecting the false positive loops. Geometric verification has been a well-acknowledged solution that leverages spatial clues provided by local feature matching to find true positives. Existing feature matching methods focus on homography and pose estimation in long-term visual localization, lacking references for geometric verification. To fill the gap, this paper proposes a unified benchmark targeting geometric verification of loop closure detection under long-term conditional variations. Furthermore, we evaluate six representative local feature matching methods (handcrafted and learning-based) under the benchmark, with in-depth analysis for limitations and future directions.
+In short, GV-Bench provides a benchmark for evaluating different local feature matching methods on geometric verification (GV), which is crucial for vision-based localization and mapping systems (e.g., Visual SLAM, Structure-from-Motion, Visual Localization).
 
 ## News
 - :star: Add support for [Image-matching-models](https://github.com/alexstoken/image-matching-models), thanks for their excellent work! :smile:
