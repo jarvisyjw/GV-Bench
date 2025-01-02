@@ -20,8 +20,9 @@ import warnings
 def parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=str, help='Path to the config file')
+    parser.add_argument('--support_model', type=str, help=f"Show all verification models: {available_models}")
     args = parser.parse_args()
-      
+
     def dict2namespace(config):
         namespace = argparse.Namespace()
         for key, value in config.items():
@@ -97,8 +98,8 @@ def main(config):
     warnings.filterwarnings("ignore")
     # ransac params, keep it consistent for fairness
     ransac_kwargs = {'ransac_reproj_thresh': 3, 
-                        'ransac_conf':0.95, 
-                        'ransac_iters':2000} # optional ransac params
+                     'ransac_conf':0.95, 
+                     'ransac_iters':2000} # optional ransac params
     # bench sequence
     gvbench_seq = ImagePairDataset(config.data, transform=None) # load images
     labels = gvbench_seq.label # load labels
