@@ -9,33 +9,48 @@ from typing import Tuple
 
 ### import image-matching-models
 sys.path.append('third_party/image-matching-models')
+import warnings
+warnings.filterwarnings("ignore")
 from matching import get_matcher, available_models
 from matching.im_models.base_matcher import BaseMatcher
 from matching.viz import *
 from pathlib import Path
 import torch
 from tqdm import tqdm
-import warnings
 
 def parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('config', type=str, help='Path to the config file')
-    parser.add_argument('--support_model', type=str, help=f"Show all verification models: {available_models}")
+    parser.add_argument('config', type=str, nargs='?', help='Path to the config file')
+    parser.add_argument('--support_model', action='store_true', help="Show all image-matching models")
     args = parser.parse_args()
 
     def dict2namespace(config):
         namespace = argparse.Namespace()
         for key, value in config.items():
-                if isinstance(value, dict):
-                    new_value = dict2namespace(value)
-                else:
-                    new_value = value
-                setattr(namespace, key, new_value)
+            if isinstance(value, dict):
+                new_value = dict2namespace(value)
+            else:
+                new_value = value
+            setattr(namespace, key, new_value)
         return namespace
     
-    # parse config file
-    with open(args.config, 'r') as f:
-        config = yaml.safe_load(f)
+    # Check for config file
+    if args.config is None:
+        if args.support_model:
+            print(f"Available models: {available_models}")
+            sys.exit(0)
+        else:
+            raise ValueError('Please provide a config file')
+
+    # Load the config file
+    try:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Config file '{args.config}' not found.")
+    except yaml.YAMLError as e:
+        raise ValueError(f"Error parsing YAML file: {e}")
+
     config = dict2namespace(config)
     
     return config
@@ -95,7 +110,6 @@ def eval(scores, labels):
     return average_precision, recall_max
 
 def main(config):
-    warnings.filterwarnings("ignore")
     # ransac params, keep it consistent for fairness
     ransac_kwargs = {'ransac_reproj_thresh': 3, 
                      'ransac_conf':0.95, 
@@ -124,5 +138,5 @@ def main(config):
     
 if __name__ == "__main__":
     # parser
-    cfg = parser()
+    args, cfg = parser()
     main(cfg)
