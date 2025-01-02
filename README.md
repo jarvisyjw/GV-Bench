@@ -23,6 +23,7 @@ In short, GV-Bench provides a benchmark for evaluating different local feature m
 
 ## Installation
 Please follow the installation of [image-matching-models](https://github.com/alexstoken/image-matching-models)
+
 ```bash
 # clone the repo
 git clone --recursive https://github.com/jarvisyjw/GV-Bench.git
@@ -58,12 +59,10 @@ Now, we support using [image-matching-models](https://github.com/alexstoken/imag
 which enables many more state-of-the-art matching methods for Geometric Verification (GV). 
 The example usage:
 
-Show all supported geometric verification models
 ```bash
-python main.py --help
-```
-
-```bash
+# Show all supported image matching models
+python main.py --support_model
+# Run
 python main.py config/day.yaml
 ```
 
