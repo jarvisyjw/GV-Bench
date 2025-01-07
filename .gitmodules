@@ -1,3 +1,3 @@
 [submodule "third_party/image-matching-models"]
 	path = third_party/image-matching-models
-	url = git@github.com:jarvisyjw/GV-Bench.git
+	url = https://github.com/jarvisyjw/image-matching-models.git
