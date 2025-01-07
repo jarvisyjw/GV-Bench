@@ -22,17 +22,16 @@ In short, GV-Bench provides a benchmark for evaluating different local feature m
 - :rocket: Releasing the benchmark!
 
 ## Installation
-Please follow the installation of [image-matching-models](https://github.com/alexstoken/image-matching-models)
+<!-- Please follow the installation of [image-matching-models](https://github.com/alexstoken/image-matching-models) -->
 
 ```bash
 # clone the repo
 git clone --recursive https://github.com/jarvisyjw/GV-Bench.git
+conda create -n gvbench python=3.11
+pip install -r requirements
 cd third_party/image-matching-models
 git submodule init
 git submodule update
-conda create -n gvbench python=3.11
-python -m pip install -U prettytable
-# Then follow the installation of image-matching-models
 ```
 
 ## Evaluation

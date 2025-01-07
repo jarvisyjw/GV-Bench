@@ -138,5 +138,5 @@ def main(config):
     
 if __name__ == "__main__":
     # parser
-    args, cfg = parser()
+    cfg = parser()
     main(cfg)
