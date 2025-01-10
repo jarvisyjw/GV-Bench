@@ -1,5 +1,6 @@
 # gvbench sequence
 data:
+  name: weather
   image_dir: dataset/images
   pairs_info: dataset/gt/weather.txt
   image_width: 512

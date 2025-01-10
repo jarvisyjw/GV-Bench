@@ -119,9 +119,14 @@ def main(config):
     labels = gvbench_seq.label # load labels
     # create result table
     table = PrettyTable()
+    table.title = f"GV-Bench:{config.data.name}\n"
     table.field_names = ["Matcher", "mAP", "Max Recall@1.0"]
     # matching loop
     for matcher in config.matcher:
+        # create tmp table
+        table_tmp = PrettyTable()
+        table_tmp.title = f"GV-Bench:{config.data.name}\n"
+        table_tmp.field_names = ["Matcher", "mAP", "Max Recall@1.0"]
         assert matcher in available_models, f"Invalid model name. Choose from {available_models}"
         print(f"Runing {matcher}...")
         # load matcher
@@ -132,6 +137,8 @@ def main(config):
         # compute scores
         scores = match(model, gvbench_seq, image_size=(config.data.image_height, config.data.image_width))
         mAP, MaxR = eval(scores, labels)
+        table_tmp.add_row([matcher, mAP, MaxR])
+        print(table_tmp)   
         table.add_rows([[matcher, mAP, MaxR]])
     # print result
     print(table)

@@ -1,8 +1,8 @@
 # gvbench sequence
 data:
-  name: night
+  name: nordland
   image_dir: dataset/images
-  pairs_info: dataset/gt/night.txt
+  pairs_info: dataset/gt/nordland.txt
   image_width: 512
   image_height: 288
 
