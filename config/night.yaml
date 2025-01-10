@@ -1,5 +1,6 @@
 # gvbench sequence
 data:
+  name: night
   image_dir: dataset/images
   pairs_info: dataset/gt/night.txt
   image_width: 512

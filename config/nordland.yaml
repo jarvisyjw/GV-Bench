@@ -1,5 +1,6 @@
 # gvbench sequence
 data:
+  name: nordland
   image_dir: dataset/images
   pairs_info: dataset/gt/nordland.txt
   image_width: 512
