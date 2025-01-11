@@ -6,5 +6,7 @@ data:
   image_width: 512
   image_height: 288
 
+exp_log: dataset/season.txt
+
 # matchers you want to test
 matcher: [master, superpoint-lg, disk-lg, roma, sift-nn, sift-lg, duster, xfeat, loftr]
