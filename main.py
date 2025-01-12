@@ -75,12 +75,6 @@ def match(matcher, loader, image_size=512):
         img0, img1 = data['img0'], data['img1']
         img0 = img0.squeeze(0)
         img1 = img1.squeeze(0)
-        # print(img0.shape)
-        # print(img0.shape)
-        # img0 = load_image(data['img0'], resize=image_size)
-        # print(img0.shape)
-        # img1 = load_image(data['img1'], resize=image_size)
-        # print(img1.shape)
         result = matcher(img0, img1)
         num_inliers, H, mkpts0, mkpts1 = result['num_inliers'], result['H'], result['inlier_kpts0'], result['inlier_kpts1']
         scores.append(num_inliers)
@@ -133,8 +127,6 @@ def main(config):
     exp_log = config.exp_log
     try:
         with open(exp_log, "x") as file:  # "x" mode creates the file; raises an error if it exists
-            # file.write(table.get_string(fields=table.field_names))  # Write headers only
-            # file.write("\n")  # Add a newline after headers
             headers = "| " + " | ".join(table.field_names) + " |"  # Format the headers
             file.write(headers + "\n")  # Write headers
             file.write("-" * len(headers) + "\n")  # Optional: Add a separator
@@ -143,10 +135,6 @@ def main(config):
 
     # matching loop
     for matcher in config.matcher:
-        # create tmp table
-        # table_tmp = PrettyTable()
-        # table_tmp.title = f"GV-Bench:{config.data.name}\n"
-        # table_tmp.field_names = ["Matcher", "mAP", "Max Recall@1.0"]
         assert matcher in available_models, f"Invalid model name. Choose from {available_models}"
         print(f"Running {matcher}...")
         # load matcher
@@ -159,16 +147,12 @@ def main(config):
         mAP, MaxR = eval(scores, labels)
         
         # write to log
-        # table_tmp.add_row([matcher, mAP, MaxR])
-        # print(table_tmp)   
         table.add_row([matcher, mAP, MaxR])
         # Append the new row to the file
         with open(exp_log, "a") as file:  # Open in append mode
             row = table._rows[-1]  # Get the last row added
             formatted_row = "| " + " | ".join(map(str, row)) + " |"  # Format the row
             file.write(formatted_row + "\n")  # Write the formatted row
-            # file.write(table.get_string(start=len(table._rows) - 1, end=len(table._rows)))  # Write only the new row
-            # file.write("\n")  # Add a newline after the row
 
     # print result
     print(table)

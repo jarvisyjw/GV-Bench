@@ -8,8 +8,6 @@ from typing import Tuple
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'third_party', 'image-matching-models'))
 from matching.im_models.base_matcher import BaseMatcher
 
-
-
 class ImagePairDataset(Dataset):
     def __init__(self, cfg, transform=None, save_memory=True):
         """
@@ -48,16 +46,12 @@ class ImagePairDataset(Dataset):
         else:
             img0_path, img1_path = self.image_pairs[idx]
             label = self.label[idx]
-            # img1 = Image.open(os.path.join(self.root_dir, img1_path)).convert('RGB')
-            # img2 = Image.open(os.path.join(self.root_dir, img2_path)).convert('RGB')
-
+            
             img0_path = os.path.join(self.root_dir, img0_path)
             img1_path = os.path.join(self.root_dir, img1_path)
 
             if self.transform:
                 raise NotImplementedError("Transform not implemented")
-                # img0 = self.transform(img0)
-                # img1 = self.transform(img1)
                 
             data = {
                 'img0': self.load_image(img0_path,resize=self.image_size),
