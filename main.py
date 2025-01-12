@@ -16,6 +16,7 @@ from matching.im_models.base_matcher import BaseMatcher
 from matching.viz import *
 from pathlib import Path
 import torch
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 def parser():
@@ -70,10 +71,15 @@ def match(matcher, loader, image_size=512):
         scores: np.array
     '''
     scores = []
-    for data in tqdm(loader, total=len(loader)):
-        img0 = load_image(data['img0'], resize=image_size)
+    for idx, data in tqdm(enumerate(loader), total=len(loader)):
+        img0, img1 = data['img0'], data['img1']
+        img0 = img0.squeeze(0)
+        img1 = img1.squeeze(0)
         # print(img0.shape)
-        img1 = load_image(data['img1'], resize=image_size)
+        # print(img0.shape)
+        # img0 = load_image(data['img0'], resize=image_size)
+        # print(img0.shape)
+        # img1 = load_image(data['img1'], resize=image_size)
         # print(img1.shape)
         result = matcher(img0, img1)
         num_inliers, H, mkpts0, mkpts1 = result['num_inliers'], result['H'], result['inlier_kpts0'], result['inlier_kpts1']
@@ -116,6 +122,7 @@ def main(config):
                      'ransac_iters':2000} # optional ransac params
     # bench sequence
     gvbench_seq = ImagePairDataset(config.data, transform=None) # load images
+    gvbench_loader = DataLoader(gvbench_seq, batch_size=1, shuffle=False, num_workers=10, pin_memory=True, prefetch_factor=10) # create dataloader
     labels = gvbench_seq.label # load labels
     # create result table
     table = PrettyTable()
@@ -141,14 +148,14 @@ def main(config):
         # table_tmp.title = f"GV-Bench:{config.data.name}\n"
         # table_tmp.field_names = ["Matcher", "mAP", "Max Recall@1.0"]
         assert matcher in available_models, f"Invalid model name. Choose from {available_models}"
-        print(f"Runing {matcher}...")
+        print(f"Running {matcher}...")
         # load matcher
         if torch.cuda.is_available():
             model = get_matcher(matcher, device='cuda', ransac_kwargs=ransac_kwargs)   
         else:
             raise ValueError('No GPU available')
         # compute scores
-        scores = match(model, gvbench_seq, image_size=(config.data.image_height, config.data.image_width))
+        scores = match(model, gvbench_loader, image_size=(config.data.image_height, config.data.image_width))
         mAP, MaxR = eval(scores, labels)
         
         # write to log
