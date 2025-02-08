@@ -116,6 +116,7 @@ def main(config):
                      'ransac_iters':2000} # optional ransac params
     # bench sequence
     gvbench_seq = ImagePairDataset(config.data, transform=None) # load images
+    # current imm models only support batch size 1
     gvbench_loader = DataLoader(gvbench_seq, batch_size=1, shuffle=False, num_workers=10, pin_memory=True, prefetch_factor=10) # create dataloader
     labels = gvbench_seq.label # load labels
     # create result table
