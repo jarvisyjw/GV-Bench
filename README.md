@@ -36,7 +36,9 @@ git submodule update
 
 ## Evaluation
 ### Data
-1. Get the GV-Bench sequences from [here](https://hkustconnect-my.sharepoint.com/:f:/g/personal/jyubt_connect_ust_hk/EkflAPp79spCviRK5EkSGVABrGncg-TfNV5I3ThXxzopLg?e=DdwCAL).
+
+
+1. Get the GV-Bench sequences from [here](https://1drv.ms/f/c/55eb2c13b5fa2219/IgBwkIVEnaZqQ7M64Tu4LrJDAT_Dn-5pgxxC3vw0Yl4FZj0).
 2. Unzip and organize the dataset folder like following:
   
   ```bash
